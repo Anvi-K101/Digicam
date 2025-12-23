@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Y2K DIGICAM STUDIO // ULTRA PRO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&family=VT323&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #9d4edd;
+            --accent-cyan: #00f0ff;
+            --accent-pink: #ff00de;
+            --accent-yellow: #ffee00;
+            --bg-color: #f0f5ff;
+        }
+
+        * { box-sizing: border-box; user-select: none; cursor: crosshair; }
+
+        @keyframes float { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-10px) rotate(2deg); } }
+        @keyframes pulse-neon { 0% { text-shadow: 0 0 5px var(--accent-cyan); } 50% { text-shadow: 0 0 20px var(--accent-cyan), 0 0 30px var(--accent-pink); } 100% { text-shadow: 0 0 5px var(--accent-cyan); } }
+        @keyframes shake { 0% { transform: translate(0,0); } 25% { transform: translate(2px, 2px); } 50% { transform: translate(-2px, -2px); } 100% { transform: translate(0,0); } }
+        @keyframes bounce-in { 0% { transform: scale(0.3); opacity: 0; } 70% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
+
+        body {
+            margin: 0; padding: 0;
+            background-color: #e0e8ff;
+            background-image: radial-gradient(var(--primary) 0.5px, transparent 0.5px);
+            background-size: 20px 20px;
+            font-family: 'Inter', sans-serif;
+            height: 100vh; overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .scanlines {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.03) 50%);
+            background-size: 100% 4px; pointer-events: none; z-index: 9999;
+        }
+
+        .magazine-grid {
+            width: 98vw; height: 95vh; max-width: 1600px;
+            background: white; border: 4px solid #000; border-radius: 24px;
+            box-shadow: 15px 15px 0px #000;
+            display: grid; grid-template-columns: 320px 1fr 320px; grid-template-rows: 70px 1fr 50px;
+            overflow: hidden; animation: bounce-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .header {
+            grid-column: 1 / -1; background: repeating-linear-gradient(45deg, #fff, #fff 10px, #f0f0f0 10px, #f0f0f0 20px);
+            display: flex; align-items: center; padding: 0 25px; border-bottom: 4px solid #000; justify-content: space-between;
+        }
+
+        .logo { font-family: 'VT323', monospace; font-size: 2.8rem; color: #000; font-weight: 900; animation: shake 4s infinite linear; }
+
+        .sidebar { background: #fff; border-right: 3px solid #000; padding: 20px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+
+        .panel-header { font-family: 'VT323', monospace; font-size: 1.5rem; color: #fff; background: #000; padding: 8px 15px; border-radius: 4px; margin: 5px 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .panel-header:hover { background: var(--primary); transform: skew(-5deg); }
+
+        .control-group { margin-bottom: 10px; padding: 10px; border: 2px solid transparent; border-radius: 12px; transition: 0.2s; }
+        .control-group:hover { border-color: #000; background: #fafafa; }
+        .control-label { font-size: 0.75rem; font-weight: 900; color: #000; margin-bottom: 5px; display: flex; justify-content: space-between; text-transform: uppercase; }
+
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: #eee; border: 2px solid #000; border-radius: 10px; outline: none; margin: 10px 0; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: var(--accent-yellow); border: 2px solid #000; border-radius: 4px; cursor: pointer; transition: 0.1s; }
+        input[type="range"]::-webkit-slider-thumb:hover { background: var(--accent-pink); transform: scale(1.1); }
+
+        .main-stage { background: #222; position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden; perspective: 1000px; }
+        
+        .canvas-container { 
+            position: relative; 
+            max-width: 90%; 
+            max-height: 90%; 
+            transition: transform 0.1s ease-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas { 
+            box-shadow: 20px 20px 0px rgba(0,0,0,0.5); 
+            image-rendering: auto; 
+            background: #000;
+            max-width: 100%;
+            max-height: 80vh;
+        }
+
+        #loadingOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; }
+        
+        .drop-zone { position: absolute; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #fff; z-index: 10; transition: 0.5s; }
+        .drop-zone.hidden { transform: translateY(-100%); opacity: 0; }
+
+        .upload-btn { background: var(--accent-cyan); color: #000; font-family: 'VT323', monospace; font-size: 2rem; padding: 20px 50px; border: 4px solid #000; border-radius: 0px; cursor: pointer; box-shadow: 8px 8px 0px #000; animation: float 3s infinite ease-in-out; }
+        .upload-btn:hover { background: var(--accent-pink); transform: translate(-2px, -2px); box-shadow: 10px 10px 0px #000; }
+
+        .right-bar { background: #fff; border-left: 3px solid #000; display: flex; flex-direction: column; }
+        .file-list { flex: 1; overflow-y: auto; padding: 15px; background: #f9f9f9; display: flex; flex-direction: column; gap: 10px; }
+        .file-item { display: flex; align-items: center; padding: 10px; border: 3px solid #000; font-size: 0.8rem; font-weight: 600; gap: 12px; cursor: pointer; background: white; transition: 0.2s; }
+        .file-item:hover { background: #f0f0f0; transform: translateX(-5px); }
+        .file-item.active { background: var(--accent-yellow); box-shadow: 4px 4px 0px #000; }
+        .file-item img { width: 60px; height: 60px; object-fit: cover; border: 2px solid #000; }
+
+        .footer { grid-column: 1 / -1; background: #000; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; font-size: 0.8rem; }
+        
+        .export-btn { background: var(--accent-pink); border: 3px solid #000; padding: 8px 25px; font-family: 'VT323', monospace; font-size: 1.4rem; color: #000; border-radius: 0; cursor: pointer; box-shadow: 4px 4px 0px #000; transition: 0.1s; }
+        .export-btn:active { transform: translate(4px, 4px); box-shadow: 0px 0px 0px; }
+
+        .frame-selector { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin: 10px 0; }
+        .frame-opt { border: 2px solid #000; padding: 5px; text-align: center; font-size: 0.7rem; font-weight: 900; cursor: pointer; background: #eee; }
+        .frame-opt.active { background: var(--accent-cyan); }
+
+        .hidden-section { display: none; }
+        .hidden-section.show { display: block; animation: shake 0.2s 1; }
+
+        .zoom-controls { position: absolute; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 5px; z-index: 5; }
+        .zoom-btn { width: 40px; height: 40px; background: #fff; border: 3px solid #000; font-weight: 900; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
+
+        .footnote { position: fixed; bottom: 5px; left: 50%; transform: translateX(-50%); font-family: 'VT323'; color: #000; background: var(--accent-yellow); padding: 2px 10px; border: 2px solid #000; z-index: 10000; font-size: 1rem; }
+    </style>
+</head>
+<body>
+
+    <div class="scanlines"></div>
+    <div class="footnote">BY ANVI KARANJKAR ★ STUDIO PRO V2</div>
+
+    <div class="magazine-grid">
+        <header class="header">
+            <div class="logo">FLASH_BACK_V2.exe</div>
+            <div style="display: flex; gap: 15px;">
+                <button id="bulkExport" class="export-btn" style="background: var(--accent-yellow);">ZIP ROLL</button>
+            </div>
+        </header>
+
+        <aside class="sidebar">
+            <div class="panel-header">★ FILM TYPE</div>
+            <div class="frame-selector">
+                <div class="frame-opt active" data-type="none">DIGI</div>
+                <div class="frame-opt" data-type="polaroid">POLA</div>
+                <div class="frame-opt" data-type="strip">STRIP</div>
+            </div>
+
+            <div class="panel-header">★ SENSOR</div>
+            <div class="control-group">
+                <div class="control-label"><span>DIGICAM STRENGTH</span> <span id="val-intensity">85%</span></div>
+                <input type="range" id="intensity" min="0" max="100" value="85">
+            </div>
+
+            <div class="panel-header" onclick="toggleSection('basic-controls')">★ OPTICS ▾</div>
+            <div id="basic-controls" class="show">
+                <div class="control-group">
+                    <div class="control-label"><span>LENS BLUR</span> <span id="val-blur">12</span></div>
+                    <input type="range" id="blur" min="0" max="40" value="12">
+                </div>
+                <div class="control-group">
+                    <div class="control-label"><span>SENSOR BLOOM</span> <span id="val-glow">45</span></div>
+                    <input type="range" id="glow" min="0" max="100" value="45">
+                </div>
+                <div class="control-group">
+                    <div class="control-label"><span>ISO NOISE</span> <span id="val-noise">35</span></div>
+                    <input type="range" id="noise" min="0" max="100" value="35">
+                </div>
+            </div>
+
+            <div class="panel-header" onclick="toggleSection('color-controls')">★ COLOR ▾</div>
+            <div id="color-controls" class="show">
+                <div class="control-group">
+                    <div class="control-label"><span>WARMTH</span> <span id="val-warmth">40</span></div>
+                    <input type="range" id="warmth" min="0" max="100" value="40">
+                </div>
+                <div class="control-group">
+                    <div class="control-label"><span>VIGNETTE</span> <span id="val-vignette">25</span></div>
+                    <input type="range" id="vignette" min="0" max="100" value="25">
+                </div>
+            </div>
+
+            <div class="panel-header" onclick="toggleSection('advanced-controls')">★ TIMESTAMP ▾</div>
+            <div id="advanced-controls" class="hidden-section">
+                <div class="control-group">
+                    <input type="date" id="customDate" style="width:100%; border:2px solid #000; padding:5px; margin-bottom:5px;">
+                    <select id="dateFormat" style="width: 100%; border:2px solid #000; padding:5px;">
+                        <option value="YY MM DD">'YY  MM  DD</option>
+                        <option value="DD MM YY">DD  MM  'YY</option>
+                        <option value="MM DD YY">MM  DD  'YY</option>
+                    </select>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-stage" id="stage">
+            <div class="zoom-controls">
+                <button class="zoom-btn" onclick="adjustZoom(0.1)">+</button>
+                <button class="zoom-btn" onclick="adjustZoom(-0.1)">-</button>
+                <button class="zoom-btn" onclick="resetZoom()">⟲</button>
+            </div>
+
+            <div id="loadingOverlay">
+                <div style="font-size: 3rem; font-family: 'VT323'; animation: pulse-neon 0.5s infinite;">COOKING...</div>
+                <div id="loadProgress" style="font-size: 1.5rem; font-family: 'VT323';">0%</div>
+            </div>
+
+            <div class="drop-zone" id="dropZone">
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">LOAD FLASH CARD</button>
+                <p style="margin-top: 15px; font-family: 'VT323'; font-size: 1.2rem;">DRAG & DROP IMAGES HERE</p>
+                <input type="file" id="fileInput" multiple accept="image/*" style="display:none">
+            </div>
+
+            <div class="canvas-container" id="canvasContainer">
+                <canvas id="mainCanvas"></canvas>
+            </div>
+            
+            <div style="position: absolute; bottom: 20px; left: 20px;">
+                <button id="compareBtn" class="export-btn" style="background:#fff; font-size:1rem;">HOLD TO COMPARE</button>
+            </div>
+        </main>
+
+        <aside class="right-bar">
+            <div class="panel-header" style="margin: 15px;">★ ROLL PREVIEW</div>
+            <div class="file-list" id="fileList"></div>
+            <div style="padding: 15px; border-top: 3px solid #000;">
+                <button class="export-btn" style="width: 100%; background: var(--accent-cyan);" onclick="document.getElementById('fileInput').click()">+ ADD PHOTOS</button>
+            </div>
+        </aside>
+
+        <footer class="footer">
+            <div style="font-family: 'VT323'; letter-spacing: 1px;">MADE BY ANVI KARANJKAR // EST 2024</div>
+            <button class="export-btn" id="downloadCurrent" style="font-size: 1.2rem; height: 80%;">SAVE JPG</button>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script>
+        const state = {
+            images: [],
+            selectedIndex: -1,
+            isComparing: false,
+            zoom: 1,
+            pan: { x: 0, y: 0 },
+            frameType: 'none',
+            settings: {
+                intensity: 85, glow: 45, blur: 12, noise: 35, 
+                warmth: 40, vignette: 25, 
+                dateStamp: true, dateFormat: 'YY MM DD', 
+                customDate: new Date().toISOString().split('T')[0]
+            }
+        };
+
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d', { alpha: true });
+        const container = document.getElementById('canvasContainer');
+        const fileInput = document.getElementById('fileInput');
+
+        function init() {
+            Object.keys(state.settings).forEach(key => {
+                const el = document.getElementById(key);
+                if (!el) return;
+                el.addEventListener('input', (e) => {
+                    const val = e.target.type === 'checkbox' ? e.target.checked : (isNaN(e.target.value) ? e.target.value : parseInt(e.target.value));
+                    state.settings[key] = val;
+                    if (document.getElementById('val-' + key)) document.getElementById('val-' + key).innerText = e.target.value + (key==='intensity'?'%':'');
+                    render();
+                });
+            });
+
+            document.querySelectorAll('.frame-opt').forEach(opt => {
+                opt.onclick = () => {
+                    document.querySelectorAll('.frame-opt').forEach(o => o.classList.remove('active'));
+                    opt.classList.add('active');
+                    state.frameType = opt.dataset.type;
+                    render();
+                };
+            });
+
+            document.getElementById('compareBtn').onmousedown = () => { state.isComparing = true; render(); };
+            document.getElementById('compareBtn').onmouseup = () => { state.isComparing = false; render(); };
+            document.getElementById('compareBtn').onmouseleave = () => { if(state.isComparing) { state.isComparing = false; render(); }};
+            
+            document.getElementById('stage').onwheel = (e) => {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                adjustZoom(delta);
+            };
+
+            let isDragging = false;
+            let lastPos = { x: 0, y: 0 };
+            container.onmousedown = (e) => { isDragging = true; lastPos = { x: e.clientX, y: e.clientY }; };
+            window.onmousemove = (e) => {
+                if (!isDragging) return;
+                state.pan.x += e.clientX - lastPos.x;
+                state.pan.y += e.clientY - lastPos.y;
+                lastPos = { x: e.clientX, y: e.clientY };
+                updateTransform();
+            };
+            window.onmouseup = () => isDragging = false;
+
+            document.getElementById('customDate').value = state.settings.customDate;
+        }
+
+        function adjustZoom(amt) {
+            state.zoom = Math.min(Math.max(0.1, state.zoom + amt), 5);
+            updateTransform();
+        }
+
+        function resetZoom() {
+            state.zoom = 1;
+            state.pan = { x: 0, y: 0 };
+            updateTransform();
+        }
+
+        function updateTransform() {
+            container.style.transform = `translate(${state.pan.x}px, ${state.pan.y}px) scale(${state.zoom})`;
+        }
+
+        fileInput.onchange = async (e) => {
+            const files = Array.from(e.target.files);
+            if (!files.length) return;
+            document.getElementById('dropZone').classList.add('hidden');
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            
+            for (let i = 0; i < files.length; i++) {
+                document.getElementById('loadProgress').innerText = `${Math.round((i/files.length)*100)}%`;
+                const img = await loadImage(files[i]);
+                state.images.push({ imgObject: img, name: files[i].name });
+                if (state.selectedIndex === -1) selectImage(state.images.length - 1);
+            }
+            document.getElementById('loadingOverlay').style.display = 'none';
+            updateQueueUI();
+        };
+
+        function loadImage(file) {
+            return new Promise(resolve => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        function selectImage(index) {
+            state.selectedIndex = index;
+            updateQueueUI();
+            resetZoom();
+            render();
+        }
+
+        function updateQueueUI() {
+            const list = document.getElementById('fileList');
+            list.innerHTML = '';
+            state.images.forEach((img, i) => {
+                const item = document.createElement('div');
+                item.className = `file-item ${i === state.selectedIndex ? 'active' : ''}`;
+                item.innerHTML = `<img src="${img.imgObject.src}"><span>${img.name.substring(0,15)}</span>`;
+                item.onclick = () => selectImage(i);
+                list.appendChild(item);
+            });
+        }
+
+        function toggleSection(id) { document.getElementById(id).classList.toggle('show'); }
+
+        async function render(targetCtx = ctx, targetCanvas = canvas, overrideImg = null) {
+            const img = overrideImg || (state.selectedIndex !== -1 ? state.images[state.selectedIndex].imgObject : null);
+            if (!img) return;
+
+            const s = state.settings;
+            const f = s.intensity / 100;
+
+            let finalW = img.width;
+            let finalH = img.height;
+
+            if (state.frameType === 'polaroid') {
+                finalW = img.width * 1.2;
+                finalH = img.height * 1.4;
+            } else if (state.frameType === 'strip') {
+                finalW = img.width * 1.1;
+                finalH = img.height * 3.15;
+            }
+
+            targetCanvas.width = finalW;
+            targetCanvas.height = finalH;
+
+            // COMPARISON LOGIC (See Original)
+            if (state.isComparing && targetCtx === ctx) {
+                if (state.frameType === 'polaroid') {
+                    targetCtx.fillStyle = "white";
+                    targetCtx.fillRect(0,0,finalW, finalH);
+                    targetCtx.drawImage(img, img.width*0.1, img.width*0.1, img.width, img.height);
+                } else if (state.frameType === 'strip') {
+                    targetCtx.fillStyle = "white";
+                    targetCtx.fillRect(0,0,finalW, finalH);
+                    const m = img.width * 0.05;
+                    for(let i=0; i<3; i++) targetCtx.drawImage(img, m, m + (i * (img.height + m)), img.width, img.height);
+                } else {
+                    targetCtx.drawImage(img, 0, 0);
+                }
+                return;
+            }
+
+            if (state.frameType !== 'none') {
+                targetCtx.fillStyle = "white";
+                targetCtx.fillRect(0, 0, finalW, finalH);
+            }
+
+            const drawImageFX = (x, y, w, h) => {
+                targetCtx.save();
+                
+                // 1. Lens Blur
+                if (s.blur > 0) {
+                    targetCtx.filter = `blur(${s.blur * f * (w/1000)}px)`;
+                }
+                targetCtx.drawImage(img, x, y, w, h);
+                targetCtx.filter = 'none';
+
+                // 2. Bloom / Glow
+                if (s.glow > 0) {
+                    targetCtx.globalCompositeOperation = 'screen';
+                    targetCtx.globalAlpha = (s.glow / 180) * f;
+                    targetCtx.filter = `blur(${15 * f}px) brightness(1.3)`;
+                    targetCtx.drawImage(img, x, y, w, h);
+                    targetCtx.globalCompositeOperation = 'source-over';
+                    targetCtx.globalAlpha = 1.0;
+                    targetCtx.filter = 'none';
+                }
+
+                // 3. Warmth
+                targetCtx.globalCompositeOperation = 'overlay';
+                targetCtx.fillStyle = `rgba(255, 140, 0, ${(s.warmth/250)*f})`;
+                targetCtx.fillRect(x, y, w, h);
+
+                // 4. Vignette
+                targetCtx.globalCompositeOperation = 'multiply';
+                const v = targetCtx.createRadialGradient(x+w/2, y+h/2, 0, x+w/2, y+h/2, w/1.1);
+                v.addColorStop(0, 'transparent');
+                v.addColorStop(1, `rgba(0,0,0,${(s.vignette/100)*f})`);
+                targetCtx.fillStyle = v;
+                targetCtx.fillRect(x, y, w, h);
+
+                // 5. ISO Noise
+                targetCtx.globalCompositeOperation = 'soft-light';
+                targetCtx.globalAlpha = (s.noise/100)*f;
+                const nSize = 128;
+                const n = document.createElement('canvas'); n.width = n.height = nSize;
+                const nx = n.getContext('2d'); const d = nx.createImageData(nSize, nSize);
+                for(let i=0; i<d.data.length; i+=4) {
+                    const r = Math.random()*255;
+                    d.data[i]=d.data[i+1]=d.data[i+2]=r; d.data[i+3]=255;
+                }
+                nx.putImageData(d,0,0);
+                targetCtx.fillStyle = targetCtx.createPattern(n, 'repeat');
+                targetCtx.fillRect(x, y, w, h);
+                
+                // 6. Orangish Yellow Timestamp
+                if (s.intensity > 10) {
+                    targetCtx.globalCompositeOperation = 'source-over';
+                    targetCtx.globalAlpha = 1.0;
+                    const dateObj = new Date(s.customDate);
+                    const yy = dateObj.getFullYear().toString().slice(-2);
+                    const mm = (dateObj.getMonth()+1).toString().padStart(2,'0');
+                    const dd = dateObj.getDate().toString().padStart(2,'0');
+                    
+                    let txt = s.dateFormat.replace('YY',yy).replace('MM',mm).replace('DD',dd);
+                    const fontSize = w * 0.045;
+                    targetCtx.font = `bold ${fontSize}px "Courier New", monospace`;
+                    targetCtx.shadowColor = "rgba(255, 50, 0, 0.9)";
+                    targetCtx.shadowBlur = fontSize/4;
+                    targetCtx.fillStyle = "#ffcc00"; // Orangish Yellow
+                    targetCtx.fillText(txt, (x + w) - (fontSize*7.5), (y + h) - (fontSize*1.2));
+                }
+
+                targetCtx.restore();
+            };
+
+            if (state.frameType === 'polaroid') {
+                drawImageFX(img.width*0.1, img.width*0.1, img.width, img.height);
+            } else if (state.frameType === 'strip') {
+                const margin = img.width * 0.05;
+                for(let i=0; i<3; i++) drawImageFX(margin, margin + (i * (img.height + margin)), img.width, img.height);
+            } else {
+                drawImageFX(0, 0, finalW, finalH);
+            }
+        }
+
+        document.getElementById('downloadCurrent').onclick = () => {
+            const link = document.createElement('a');
+            link.download = `ANVI_DIGI_${Date.now()}.JPG`;
+            link.href = canvas.toDataURL('image/jpeg', 0.95);
+            link.click();
+        };
+
+        document.getElementById('bulkExport').onclick = async () => {
+            if (!state.images.length) return;
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            const zip = new JSZip();
+            const off = document.createElement('canvas');
+            const oCtx = off.getContext('2d');
+            for (let i = 0; i < state.images.length; i++) {
+                document.getElementById('loadProgress').innerText = `ZIPPING ${i+1}/${state.images.length}`;
+                await render(oCtx, off, state.images[i].imgObject);
+                const blob = await new Promise(r => off.toBlob(r, 'image/jpeg', 0.9));
+                zip.file(`DIGI_${state.images[i].name}`, blob);
+            }
+            const content = await zip.generateAsync({type:"blob"});
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            link.download = "DIGICAM_ROLL_ANVI.zip";
+            link.click();
+            document.getElementById('loadingOverlay').style.display = 'none';
+        };
+
+        init();
+    </script>
+</body>
+</html>
