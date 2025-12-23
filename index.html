@@ -49,18 +49,13 @@
             position: relative;
         }
 
-        /* Mobile Responsive Adjustments */
         @media (max-width: 1024px) {
-            .magazine-grid {
-                grid-template-columns: 1fr;
-                grid-template-rows: 60px 1fr 120px 40px;
-                height: 100vh; width: 100vw; border-radius: 0; border: none;
-            }
-            .sidebar { order: 3; border-right: none; border-top: 3px solid #000; flex-direction: row !important; overflow-x: auto; overflow-y: hidden; height: 120px; padding: 10px; }
+            .magazine-grid { grid-template-columns: 1fr; grid-template-rows: 60px 1fr 140px 40px; height: 100vh; width: 100vw; border-radius: 0; border: none; }
+            .sidebar { order: 3; border-right: none; border-top: 3px solid #000; flex-direction: row !important; overflow-x: auto; overflow-y: hidden; height: 140px; padding: 10px; }
             .right-bar { display: none; }
             .header .logo { font-size: 1.8rem; }
-            .control-group { min-width: 150px; padding: 5px; }
-            .panel-header { font-size: 1rem; padding: 4px 8px; }
+            .control-group { min-width: 180px; padding: 5px; }
+            .panel-header { font-size: 1rem; padding: 4px 8px; white-space: nowrap; }
             .main-stage { order: 2; }
         }
 
@@ -85,9 +80,9 @@
 
         .main-stage { background: #222; position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden; perspective: 1000px; touch-action: none; }
         
-        .canvas-container { position: relative; max-width: 90%; max-height: 90%; transition: transform 0.05s linear; display: flex; justify-content: center; align-items: center; }
+        .canvas-container { position: relative; display: flex; justify-content: center; align-items: center; transform-origin: center center; transition: transform 0.05s linear; will-change: transform; }
 
-        canvas { box-shadow: 20px 20px 0px rgba(0,0,0,0.5); image-rendering: auto; background: #000; max-width: 100%; max-height: 80vh; }
+        canvas { box-shadow: 20px 20px 0px rgba(0,0,0,0.5); image-rendering: auto; background: #000; max-width: 90vw; max-height: 70vh; }
 
         #loadingOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; }
         
@@ -118,11 +113,10 @@
 
         .footnote { position: fixed; bottom: 5px; left: 50%; transform: translateX(-50%); font-family: 'VT323'; color: #000; background: var(--accent-yellow); padding: 2px 10px; border: 2px solid #000; z-index: 10000; font-size: 1rem; }
 
-        /* Onboarding Styles */
-        #onboarding { position: absolute; inset: 0; background: rgba(157, 78, 221, 0.9); z-index: 20000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; padding: 20px; font-family: 'VT323'; }
-        .step-card { background: #000; border: 4px solid var(--accent-cyan); padding: 30px; max-width: 400px; box-shadow: 15px 15px 0 var(--accent-pink); }
-        .step-card h2 { font-size: 2.5rem; margin: 0 0 10px 0; color: var(--accent-yellow); }
-        .step-card p { font-size: 1.4rem; margin: 10px 0; }
+        #onboarding { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); z-index: 20000; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; padding: 20px; font-family: 'VT323'; }
+        .step-card { background: #000; border: 4px solid var(--accent-cyan); padding: 30px; max-width: 440px; box-shadow: 15px 15px 0 var(--accent-pink); animation: bounce-in 0.5s ease; }
+        .step-card h2 { font-size: 2.8rem; margin: 0 0 15px 0; color: var(--accent-yellow); letter-spacing: 2px; }
+        .step-card p { font-size: 1.6rem; margin: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -132,12 +126,12 @@
 
     <div id="onboarding">
         <div class="step-card">
-            <h2>WELCOME PILOT</h2>
-            <p>1. UPLOAD YOUR ROLL</p>
-            <p>2. AUTO-CONVERT TO DIGI</p>
-            <p>3. TWEAK THE SENSORS</p>
-            <p>4. EXPORT THE MEMORIES</p>
-            <button class="export-btn" style="margin-top:20px; width:100%" onclick="closeOnboarding()">START SESSION</button>
+            <h2>INITIALIZING...</h2>
+            <p>1. LOAD FLASH CARD (UPLOAD)</p>
+            <p>2. CHOOSE FILM TYPE (POLA/STRIP)</p>
+            <p>3. TWEAK SENSORS (ISO/BLOOM)</p>
+            <p>4. BURN TO ROLL (EXPORT)</p>
+            <button class="export-btn" style="margin-top:25px; width:100%; background: var(--accent-cyan);" onclick="closeOnboarding()">ENTER STUDIO</button>
         </div>
     </div>
 
@@ -151,43 +145,43 @@
 
         <aside class="sidebar" id="sidebar">
             <div class="panel-header">★ FILM TYPE</div>
-            <div class="frame-selector">
-                <div class="frame-opt active" data-type="none">DIGI</div>
-                <div class="frame-opt" data-type="polaroid">POLAROID</div>
+            <div class="frame-selector" id="frameSelector">
+                <div class="frame-opt" data-type="none">DIGI</div>
+                <div class="frame-opt" data-type="polaroid">POLA</div>
                 <div class="frame-opt" data-type="strip">STRIP</div>
             </div>
 
             <div class="panel-header">★ SENSOR</div>
             <div class="control-group">
-                <div class="control-label"><span>DIGICAM STRENGTH</span> <span id="val-intensity">85%</span></div>
-                <input type="range" id="intensity" min="0" max="100" value="85">
+                <div class="control-label"><span>DIGICAM STRENGTH</span> <span id="val-intensity">90%</span></div>
+                <input type="range" id="intensity" min="0" max="100" value="90">
             </div>
 
             <div class="panel-header" onclick="toggleSection('basic-controls')">★ OPTICS ▾</div>
             <div id="basic-controls" class="show">
                 <div class="control-group">
-                    <div class="control-label"><span>LENS BLUR</span> <span id="val-blur">12</span></div>
-                    <input type="range" id="blur" min="0" max="40" value="12">
+                    <div class="control-label"><span>LENS BLUR</span> <span id="val-blur">15</span></div>
+                    <input type="range" id="blur" min="0" max="40" value="15">
                 </div>
                 <div class="control-group">
-                    <div class="control-label"><span>SENSOR BLOOM</span> <span id="val-glow">45</span></div>
-                    <input type="range" id="glow" min="0" max="100" value="45">
+                    <div class="control-label"><span>SENSOR BLOOM</span> <span id="val-glow">50</span></div>
+                    <input type="range" id="glow" min="0" max="100" value="50">
                 </div>
                 <div class="control-group">
-                    <div class="control-label"><span>ISO NOISE</span> <span id="val-noise">35</span></div>
-                    <input type="range" id="noise" min="0" max="100" value="35">
+                    <div class="control-label"><span>ISO NOISE</span> <span id="val-noise">40</span></div>
+                    <input type="range" id="noise" min="0" max="100" value="40">
                 </div>
             </div>
 
             <div class="panel-header" onclick="toggleSection('color-controls')">★ COLOR ▾</div>
             <div id="color-controls" class="show">
                 <div class="control-group">
-                    <div class="control-label"><span>WARMTH</span> <span id="val-warmth">40</span></div>
-                    <input type="range" id="warmth" min="0" max="100" value="40">
+                    <div class="control-label"><span>WARMTH</span> <span id="val-warmth">45</span></div>
+                    <input type="range" id="warmth" min="0" max="100" value="45">
                 </div>
                 <div class="control-group">
-                    <div class="control-label"><span>VIGNETTE</span> <span id="val-vignette">25</span></div>
-                    <input type="range" id="vignette" min="0" max="100" value="25">
+                    <div class="control-label"><span>VIGNETTE</span> <span id="val-vignette">30</span></div>
+                    <input type="range" id="vignette" min="0" max="100" value="30">
                 </div>
             </div>
 
@@ -206,8 +200,8 @@
 
         <main class="main-stage" id="stage">
             <div class="zoom-controls">
-                <button class="zoom-btn" onclick="adjustZoom(0.1)">+</button>
-                <button class="zoom-btn" onclick="adjustZoom(-0.1)">-</button>
+                <button class="zoom-btn" onclick="adjustZoom(0.2)">+</button>
+                <button class="zoom-btn" onclick="adjustZoom(-0.2)">-</button>
                 <button class="zoom-btn" onclick="resetZoom()">⟲</button>
             </div>
 
@@ -251,13 +245,13 @@
             images: [],
             selectedIndex: -1,
             isComparing: false,
-            zoom: 1,
+            zoom: 1.0,
             pan: { x: 0, y: 0 },
-            frameType: 'none',
+            frameType: localStorage.getItem('digi_frameType') || 'none',
             settings: JSON.parse(localStorage.getItem('digi_settings')) || {
-                intensity: 85, glow: 45, blur: 12, noise: 35, 
-                warmth: 40, vignette: 25, 
-                dateStamp: true, dateFormat: 'YY MM DD', 
+                intensity: 90, glow: 50, blur: 15, noise: 40, 
+                warmth: 45, vignette: 30, 
+                dateFormat: 'YY MM DD', 
                 customDate: new Date().toISOString().split('T')[0]
             }
         };
@@ -268,108 +262,63 @@
         const fileInput = document.getElementById('fileInput');
 
         function init() {
-            // Restore UI from state
             Object.keys(state.settings).forEach(key => {
                 const el = document.getElementById(key);
                 if (el) {
-                    if (el.type === 'range') el.value = state.settings[key];
-                    if (el.tagName === 'SELECT' || el.type === 'date') el.value = state.settings[key];
+                    el.value = state.settings[key];
                     const label = document.getElementById('val-' + key);
                     if (label) label.innerText = el.value + (key === 'intensity' ? '%' : '');
                 }
             });
 
-            // Improved Slider Interactions - immediate and deterministic
-            document.querySelectorAll('input[type="range"]').forEach(slider => {
-                slider.addEventListener('input', (e) => {
-                    const id = e.target.id;
-                    const val = parseInt(e.target.value);
-                    state.settings[id] = val;
-                    const label = document.getElementById('val-' + id);
-                    if (label) label.innerText = val + (id === 'intensity' ? '%' : '');
-                    saveState();
-                    requestAnimationFrame(() => render());
-                });
-            });
-
-            // Event listener for Date and Format
-            ['customDate', 'dateFormat'].forEach(id => {
-                document.getElementById(id).addEventListener('change', (e) => {
-                    state.settings[id] = e.target.value;
-                    saveState();
-                    render();
-                });
-            });
-
             document.querySelectorAll('.frame-opt').forEach(opt => {
+                if (opt.dataset.type === state.frameType) opt.classList.add('active');
                 opt.onclick = () => {
                     document.querySelectorAll('.frame-opt').forEach(o => o.classList.remove('active'));
                     opt.classList.add('active');
                     state.frameType = opt.dataset.type;
+                    localStorage.setItem('digi_frameType', state.frameType);
                     render();
                 };
             });
 
-            // Touch and Mouse Comparison
-            const startCompare = (e) => { e.preventDefault(); state.isComparing = true; render(); };
-            const endCompare = () => { state.isComparing = false; render(); };
-            const btn = document.getElementById('compareBtn');
-            btn.addEventListener('mousedown', startCompare);
-            btn.addEventListener('touchstart', startCompare);
-            window.addEventListener('mouseup', endCompare);
-            window.addEventListener('touchend', endCompare);
-            
-            // Zoom Logic
-            document.getElementById('stage').addEventListener('wheel', (e) => {
-                e.preventDefault();
-                adjustZoom(e.deltaY > 0 ? -0.1 : 0.1);
-            }, { passive: false });
+            document.querySelectorAll('input[type="range"]').forEach(slider => {
+                slider.addEventListener('input', (e) => {
+                    state.settings[e.target.id] = parseInt(e.target.value);
+                    const label = document.getElementById('val-' + e.target.id);
+                    if (label) label.innerText = e.target.value + (e.target.id === 'intensity' ? '%' : '');
+                    localStorage.setItem('digi_settings', JSON.stringify(state.settings));
+                    render();
+                });
+            });
 
-            // Pan Logic
-            let isDragging = false;
-            let lastPos = { x: 0, y: 0 };
-            const stage = document.getElementById('stage');
+            ['customDate', 'dateFormat'].forEach(id => {
+                document.getElementById(id).addEventListener('change', (e) => {
+                    state.settings[id] = e.target.value;
+                    localStorage.setItem('digi_settings', JSON.stringify(state.settings));
+                    render();
+                });
+            });
 
-            const onStart = (x, y) => { isDragging = true; lastPos = { x, y }; };
-            const onMove = (x, y) => {
-                if (!isDragging) return;
-                state.pan.x += x - lastPos.x;
-                state.pan.y += y - lastPos.y;
-                lastPos = { x, y };
-                updateTransform();
-            };
-
-            stage.addEventListener('mousedown', e => onStart(e.clientX, e.clientY));
-            window.addEventListener('mousemove', e => onMove(e.clientX, e.clientY));
-            window.addEventListener('mouseup', () => isDragging = false);
-
-            stage.addEventListener('touchstart', e => onStart(e.touches[0].clientX, e.touches[0].clientY), {passive: true});
-            window.addEventListener('touchmove', e => onMove(e.touches[0].clientX, e.touches[0].clientY), {passive: true});
-            window.addEventListener('touchend', () => isDragging = false);
-
-            if (!localStorage.getItem('digi_visited')) {
+            if (!localStorage.getItem('digi_onboard_v2')) {
                 document.getElementById('onboarding').style.display = 'flex';
-            } else {
-                document.getElementById('onboarding').style.display = 'none';
             }
+
+            setupInteraction();
         }
 
         function closeOnboarding() {
             document.getElementById('onboarding').style.display = 'none';
-            localStorage.setItem('digi_visited', 'true');
-        }
-
-        function saveState() {
-            localStorage.setItem('digi_settings', JSON.stringify(state.settings));
+            localStorage.setItem('digi_onboard_v2', 'true');
         }
 
         function adjustZoom(amt) {
-            state.zoom = Math.min(Math.max(0.1, state.zoom + amt), 5);
+            state.zoom = Math.min(Math.max(0.2, state.zoom + amt), 8);
             updateTransform();
         }
 
         function resetZoom() {
-            state.zoom = 1; state.pan = { x: 0, y: 0 };
+            state.zoom = 1.0; state.pan = { x: 0, y: 0 };
             updateTransform();
         }
 
@@ -377,12 +326,38 @@
             container.style.transform = `translate(${state.pan.x}px, ${state.pan.y}px) scale(${state.zoom})`;
         }
 
+        function setupInteraction() {
+            let isDragging = false, lastPos = { x: 0, y: 0 };
+            const startDrag = (x, y) => { isDragging = true; lastPos = { x, y }; };
+            const moveDrag = (x, y) => {
+                if (!isDragging) return;
+                state.pan.x += x - lastPos.x;
+                state.pan.y += y - lastPos.y;
+                lastPos = { x, y };
+                updateTransform();
+            };
+            const stage = document.getElementById('stage');
+            stage.addEventListener('mousedown', e => startDrag(e.clientX, e.clientY));
+            window.addEventListener('mousemove', e => moveDrag(e.clientX, e.clientY));
+            window.addEventListener('mouseup', () => isDragging = false);
+            stage.addEventListener('touchstart', e => startDrag(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
+            window.addEventListener('touchmove', e => moveDrag(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
+            window.addEventListener('touchend', () => isDragging = false);
+
+            const cmp = document.getElementById('compareBtn');
+            const startCmp = (e) => { e.preventDefault(); state.isComparing = true; render(); };
+            const endCmp = () => { state.isComparing = false; render(); };
+            cmp.addEventListener('mousedown', startCmp);
+            cmp.addEventListener('touchstart', startCmp);
+            window.addEventListener('mouseup', endCmp);
+            window.addEventListener('touchend', endCmp);
+        }
+
         fileInput.onchange = async (e) => {
             const files = Array.from(e.target.files);
             if (!files.length) return;
             document.getElementById('dropZone').classList.add('hidden');
             document.getElementById('loadingOverlay').style.display = 'flex';
-            
             for (let i = 0; i < files.length; i++) {
                 document.getElementById('loadProgress').innerText = `${Math.round((i/files.length)*100)}%`;
                 const img = await loadImage(files[i]);
@@ -415,7 +390,7 @@
             state.images.forEach((img, i) => {
                 const item = document.createElement('div');
                 item.className = `file-item ${i === state.selectedIndex ? 'active' : ''}`;
-                item.innerHTML = `<img src="${img.src}"><span>${img.name.substring(0,15)}</span>`;
+                item.innerHTML = `<img src="${img.src}"><span>${img.name.substring(0,12)}...</span>`;
                 item.onclick = () => selectImage(i);
                 list.appendChild(item);
             });
@@ -428,10 +403,10 @@
             if (!img) return;
 
             const s = state.settings;
-            const f = s.intensity / 100;
-
-            let finalW = img.width;
-            let finalH = img.height;
+            // BOOSTED INTENSITY CURVE: Intensity now has a higher impact
+            const f = Math.pow(s.intensity / 100, 0.8) * 1.5; 
+            
+            let finalW = img.width, finalH = img.height;
 
             if (state.frameType === 'polaroid') { finalW = img.width * 1.2; finalH = img.height * 1.4; } 
             else if (state.frameType === 'strip') { finalW = img.width * 1.1; finalH = img.height * 3.15; }
@@ -452,78 +427,79 @@
             const drawImageFX = (x, y, w, h) => {
                 targetCtx.save();
                 
-                if (s.blur > 0) targetCtx.filter = `blur(${s.blur * f * (w/1200)}px)`;
+                // 1. Digital Sensor Blur (Resolution reduction effect)
+                if (s.blur > 0) targetCtx.filter = `blur(${s.blur * f * (w/1600)}px) contrast(${1 + (0.1 * f)})`;
                 targetCtx.drawImage(img, x, y, w, h);
                 targetCtx.filter = 'none';
 
+                // 2. High Intensity Sensor Bloom
                 if (s.glow > 0) {
                     targetCtx.globalCompositeOperation = 'screen';
-                    targetCtx.globalAlpha = (s.glow / 200) * f;
-                    targetCtx.filter = `blur(${20 * f}px) brightness(1.2)`;
+                    targetCtx.globalAlpha = (s.glow / 180) * f;
+                    targetCtx.filter = `blur(${25 * f}px) brightness(${1.1 + (0.2 * f)})`;
                     targetCtx.drawImage(img, x, y, w, h);
-                    targetCtx.globalCompositeOperation = 'source-over';
                     targetCtx.globalAlpha = 1.0;
+                    targetCtx.globalCompositeOperation = 'source-over';
                     targetCtx.filter = 'none';
                 }
 
+                // 3. Digicam Color Haze (Amber/Warmth)
                 targetCtx.globalCompositeOperation = 'overlay';
-                targetCtx.fillStyle = `rgba(255, 140, 0, ${(s.warmth/280)*f})`;
+                targetCtx.fillStyle = `rgba(255, 160, 20, ${(s.warmth/220)*f})`;
                 targetCtx.fillRect(x, y, w, h);
 
+                // 4. Balanced Vignette
                 targetCtx.globalCompositeOperation = 'multiply';
-                const v = targetCtx.createRadialGradient(x+w/2, y+h/2, w/4, x+w/2, y+h/2, w/1.2);
+                const v = targetCtx.createRadialGradient(x+w/2, y+h/2, w/4, x+w/2, y+h/2, w/1.1);
                 v.addColorStop(0, 'transparent');
-                // Intensity scaling for vignette safety
-                v.addColorStop(1, `rgba(0,0,0,${(s.vignette/120)*f})`);
+                v.addColorStop(1, `rgba(0,0,0,${(s.vignette/100)*f})`);
                 targetCtx.fillStyle = v;
                 targetCtx.fillRect(x, y, w, h);
 
+                // 5. ISO Noise Pattern
                 targetCtx.globalCompositeOperation = 'soft-light';
-                targetCtx.globalAlpha = (s.noise/120)*f;
-                const nSize = 128;
-                const n = document.createElement('canvas'); n.width = n.height = nSize;
-                const nx = n.getContext('2d'); const d = nx.createImageData(nSize, nSize);
-                for(let i=0; i<d.data.length; i+=4) {
-                    const r = Math.random()*255;
-                    d.data[i]=d.data[i+1]=d.data[i+2]=r; d.data[i+3]=255;
-                }
+                targetCtx.globalAlpha = (s.noise/110)*f;
+                const n = document.createElement('canvas'); n.width = n.height = 128;
+                const nx = n.getContext('2d'), d = nx.createImageData(128, 128);
+                for(let i=0; i<d.data.length; i+=4) { const r = Math.random()*255; d.data[i]=d.data[i+1]=d.data[i+2]=r; d.data[i+3]=255; }
                 nx.putImageData(d,0,0);
                 targetCtx.fillStyle = targetCtx.createPattern(n, 'repeat');
                 targetCtx.fillRect(x, y, w, h);
                 
-                if (f > 0.1) {
+                // 6. REALISTIC "BURNT-IN" DATE STAMP
+                if (f > 0.02) {
                     targetCtx.globalCompositeOperation = 'source-over';
-                    targetCtx.globalAlpha = 0.9;
                     const dateObj = new Date(s.customDate);
-                    const yy = dateObj.getFullYear().toString().slice(-2);
-                    const mm = (dateObj.getMonth()+1).toString().padStart(2,'0');
-                    const dd = dateObj.getDate().toString().padStart(2,'0');
-                    let txt = s.dateFormat.replace('YY',yy).replace('MM',mm).replace('DD',dd);
+                    const yy = dateObj.getFullYear().toString().slice(-2), mm = (dateObj.getMonth()+1).toString().padStart(2,'0'), dd = dateObj.getDate().toString().padStart(2,'0');
+                    const txt = s.dateFormat.replace('YY',yy).replace('MM',mm).replace('DD',dd);
+                    const fontSize = w * 0.046;
                     
-                    const fontSize = w * 0.048;
+                    // Soft spread for a "light-leaking through plastic" look
                     targetCtx.font = `bold ${fontSize}px "Courier New", monospace`;
-                    targetCtx.shadowColor = "rgba(255, 50, 0, 0.8)";
-                    targetCtx.shadowBlur = fontSize/6;
-                    targetCtx.fillStyle = "#ffcc00";
+                    targetCtx.shadowColor = "rgba(255, 100, 0, 0.5)";
+                    targetCtx.shadowBlur = fontSize / 4;
+                    targetCtx.fillStyle = "rgba(255, 140, 0, 0.9)";
                     targetCtx.textAlign = "right";
+                    targetCtx.fillText(txt, (x + w) - (w*0.05), (y + h) - (h*0.05));
+                    
+                    // Sharper inner core
+                    targetCtx.shadowBlur = 0;
+                    targetCtx.fillStyle = "rgba(255, 180, 50, 0.95)";
                     targetCtx.fillText(txt, (x + w) - (w*0.05), (y + h) - (h*0.05));
                 }
                 targetCtx.restore();
             };
 
-            if (state.frameType === 'polaroid') {
-                drawImageFX(img.width*0.1, img.width*0.1, img.width, img.height);
-            } else if (state.frameType === 'strip') {
+            if (state.frameType === 'polaroid') drawImageFX(img.width*0.1, img.width*0.1, img.width, img.height);
+            else if (state.frameType === 'strip') {
                 const margin = img.width * 0.05;
                 for(let i=0; i<3; i++) drawImageFX(margin, margin + (i * (img.height + margin)), img.width, img.height);
-            } else {
-                drawImageFX(0, 0, finalW, finalH);
-            }
+            } else drawImageFX(0, 0, finalW, finalH);
         }
 
         document.getElementById('downloadCurrent').onclick = () => {
             const link = document.createElement('a');
-            link.download = `ANVI_DIGI_${Date.now()}.JPG`;
+            link.download = `DIGI_${Date.now()}.JPG`;
             link.href = canvas.toDataURL('image/jpeg', 0.95);
             link.click();
         };
@@ -531,9 +507,7 @@
         document.getElementById('bulkExport').onclick = async () => {
             if (!state.images.length) return;
             document.getElementById('loadingOverlay').style.display = 'flex';
-            const zip = new JSZip();
-            const off = document.createElement('canvas');
-            const oCtx = off.getContext('2d');
+            const zip = new JSZip(), off = document.createElement('canvas'), oCtx = off.getContext('2d');
             for (let i = 0; i < state.images.length; i++) {
                 document.getElementById('loadProgress').innerText = `ZIPPING ${i+1}/${state.images.length}`;
                 await render(oCtx, off, state.images[i].imgObject);
@@ -543,7 +517,7 @@
             const content = await zip.generateAsync({type:"blob"});
             const link = document.createElement('a');
             link.href = URL.createObjectURL(content);
-            link.download = "DIGICAM_ROLL_ANVI.zip";
+            link.download = "DIGICAM_ROLL.zip";
             link.click();
             document.getElementById('loadingOverlay').style.display = 'none';
         };
