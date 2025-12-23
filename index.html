@@ -50,13 +50,15 @@
         }
 
         @media (max-width: 1024px) {
-            .magazine-grid { grid-template-columns: 1fr; grid-template-rows: 60px 1fr 140px 40px; height: 100vh; width: 100vw; border-radius: 0; border: none; }
-            .sidebar { order: 3; border-right: none; border-top: 3px solid #000; flex-direction: row !important; overflow-x: auto; overflow-y: hidden; height: 140px; padding: 10px; }
+            .magazine-grid { grid-template-columns: 1fr; grid-template-rows: 60px 1fr 180px; height: 100vh; width: 100vw; border-radius: 0; border: none; }
+            .sidebar { order: 3; border-right: none; border-top: 3px solid #000; flex-direction: row !important; overflow-x: auto; overflow-y: hidden; height: auto; padding: 10px; gap: 15px; }
             .right-bar { display: none; }
             .header .logo { font-size: 1.8rem; }
             .control-group { min-width: 180px; padding: 5px; }
             .panel-header { font-size: 1rem; padding: 4px 8px; white-space: nowrap; }
-            .main-stage { order: 2; }
+            .main-stage { order: 2; height: 100%; }
+            .footer { display: none !important; }
+            .mobile-save-container { display: flex !important; flex-direction: column; gap: 8px; min-width: 140px; justify-content: center; }
         }
 
         .header {
@@ -99,7 +101,8 @@
 
         .footer { grid-column: 1 / -1; background: #000; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; font-size: 0.8rem; }
         
-        .export-btn { background: var(--accent-pink); border: 3px solid #000; padding: 8px 25px; font-family: 'VT323', monospace; font-size: 1.4rem; color: #000; border-radius: 0; cursor: pointer; box-shadow: 4px 4px 0px #000; }
+        .export-btn { background: var(--accent-pink); border: 3px solid #000; padding: 8px 25px; font-family: 'VT323', monospace; font-size: 1.4rem; color: #000; border-radius: 0; cursor: pointer; box-shadow: 4px 4px 0px #000; transition: 0.1s; }
+        .export-btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px #000; }
 
         .frame-selector { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin: 10px 0; }
         .frame-opt { border: 2px solid #000; padding: 5px; text-align: center; font-size: 0.7rem; font-weight: 900; cursor: pointer; background: #eee; }
@@ -117,12 +120,14 @@
         .step-card { background: #000; border: 4px solid var(--accent-cyan); padding: 30px; max-width: 440px; box-shadow: 15px 15px 0 var(--accent-pink); animation: bounce-in 0.5s ease; }
         .step-card h2 { font-size: 2.8rem; margin: 0 0 15px 0; color: var(--accent-yellow); letter-spacing: 2px; }
         .step-card p { font-size: 1.6rem; margin: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; }
+
+        .mobile-save-container { display: none; }
     </style>
 </head>
 <body>
 
     <div class="scanlines"></div>
-    <div class="footnote">BY ANVI KARANJKAR ★ STUDIO PRO V2</div>
+    <div class="footnote">BY ANVI KARANJKAR ★ EST 2025</div>
 
     <div id="onboarding">
         <div class="step-card">
@@ -144,6 +149,11 @@
         </header>
 
         <aside class="sidebar" id="sidebar">
+            <div class="mobile-save-container">
+                <button class="export-btn" style="width: 100%; background: var(--accent-cyan); font-size: 1.2rem;" onclick="document.getElementById('fileInput').click()">+ ADD</button>
+                <button class="export-btn" style="width: 100%; background: var(--accent-pink); font-size: 1.2rem;" onclick="downloadImage()">SAVE JPG</button>
+            </div>
+
             <div class="panel-header">★ FILM TYPE</div>
             <div class="frame-selector" id="frameSelector">
                 <div class="frame-opt" data-type="none">DIGI</div>
@@ -160,8 +170,8 @@
             <div class="panel-header" onclick="toggleSection('basic-controls')">★ OPTICS ▾</div>
             <div id="basic-controls" class="show">
                 <div class="control-group">
-                    <div class="control-label"><span>LENS BLUR</span> <span id="val-blur">15</span></div>
-                    <input type="range" id="blur" min="0" max="40" value="15">
+                    <div class="control-label"><span>LENS BLUR</span> <span id="val-blur">14</span></div>
+                    <input type="range" id="blur" min="0" max="40" value="14">
                 </div>
                 <div class="control-group">
                     <div class="control-label"><span>SENSOR BLOOM</span> <span id="val-glow">50</span></div>
@@ -228,14 +238,15 @@
         <aside class="right-bar">
             <div class="panel-header" style="margin: 15px;">★ ROLL PREVIEW</div>
             <div class="file-list" id="fileList"></div>
-            <div style="padding: 15px; border-top: 3px solid #000;">
+            <div style="padding: 15px; border-top: 3px solid #000; display: flex; flex-direction: column; gap: 10px;">
                 <button class="export-btn" style="width: 100%; background: var(--accent-cyan);" onclick="document.getElementById('fileInput').click()">+ ADD PHOTOS</button>
+                <button class="export-btn" style="width: 100%; background: var(--accent-pink);" onclick="downloadImage()">SAVE JPG</button>
             </div>
         </aside>
 
         <footer class="footer">
             <div style="font-family: 'VT323'; letter-spacing: 1px;">MADE BY ANVI KARANJKAR // EST 2025</div>
-            <button class="export-btn" id="downloadCurrent" style="font-size: 1.2rem; height: 80%;">SAVE JPG</button>
+            <button class="export-btn" id="downloadCurrent" style="font-size: 1.2rem; height: 80%;" onclick="downloadImage()">SAVE JPG</button>
         </footer>
     </div>
 
@@ -249,7 +260,7 @@
             pan: { x: 0, y: 0 },
             frameType: localStorage.getItem('digi_frameType') || 'none',
             settings: JSON.parse(localStorage.getItem('digi_settings')) || {
-                intensity: 90, glow: 50, blur: 15, noise: 40, 
+                intensity: 90, glow: 50, blur: 14, noise: 40, 
                 warmth: 45, vignette: 30, 
                 dateFormat: 'YY MM DD', 
                 customDate: new Date().toISOString().split('T')[0]
@@ -403,7 +414,6 @@
             if (!img) return;
 
             const s = state.settings;
-            // BOOSTED INTENSITY CURVE: Intensity now has a higher impact
             const f = Math.pow(s.intensity / 100, 0.8) * 1.5; 
             
             let finalW = img.width, finalH = img.height;
@@ -427,12 +437,10 @@
             const drawImageFX = (x, y, w, h) => {
                 targetCtx.save();
                 
-                // 1. Digital Sensor Blur (Resolution reduction effect)
                 if (s.blur > 0) targetCtx.filter = `blur(${s.blur * f * (w/1600)}px) contrast(${1 + (0.1 * f)})`;
                 targetCtx.drawImage(img, x, y, w, h);
                 targetCtx.filter = 'none';
 
-                // 2. High Intensity Sensor Bloom
                 if (s.glow > 0) {
                     targetCtx.globalCompositeOperation = 'screen';
                     targetCtx.globalAlpha = (s.glow / 180) * f;
@@ -443,12 +451,10 @@
                     targetCtx.filter = 'none';
                 }
 
-                // 3. Digicam Color Haze (Amber/Warmth)
                 targetCtx.globalCompositeOperation = 'overlay';
                 targetCtx.fillStyle = `rgba(255, 160, 20, ${(s.warmth/220)*f})`;
                 targetCtx.fillRect(x, y, w, h);
 
-                // 4. Balanced Vignette
                 targetCtx.globalCompositeOperation = 'multiply';
                 const v = targetCtx.createRadialGradient(x+w/2, y+h/2, w/4, x+w/2, y+h/2, w/1.1);
                 v.addColorStop(0, 'transparent');
@@ -456,7 +462,6 @@
                 targetCtx.fillStyle = v;
                 targetCtx.fillRect(x, y, w, h);
 
-                // 5. ISO Noise Pattern
                 targetCtx.globalCompositeOperation = 'soft-light';
                 targetCtx.globalAlpha = (s.noise/110)*f;
                 const n = document.createElement('canvas'); n.width = n.height = 128;
@@ -466,7 +471,6 @@
                 targetCtx.fillStyle = targetCtx.createPattern(n, 'repeat');
                 targetCtx.fillRect(x, y, w, h);
                 
-                // 6. REALISTIC "BURNT-IN" DATE STAMP
                 if (f > 0.02) {
                     targetCtx.globalCompositeOperation = 'source-over';
                     const dateObj = new Date(s.customDate);
@@ -474,7 +478,6 @@
                     const txt = s.dateFormat.replace('YY',yy).replace('MM',mm).replace('DD',dd);
                     const fontSize = w * 0.046;
                     
-                    // Soft spread for a "light-leaking through plastic" look
                     targetCtx.font = `bold ${fontSize}px "Courier New", monospace`;
                     targetCtx.shadowColor = "rgba(255, 100, 0, 0.5)";
                     targetCtx.shadowBlur = fontSize / 4;
@@ -482,7 +485,6 @@
                     targetCtx.textAlign = "right";
                     targetCtx.fillText(txt, (x + w) - (w*0.05), (y + h) - (h*0.05));
                     
-                    // Sharper inner core
                     targetCtx.shadowBlur = 0;
                     targetCtx.fillStyle = "rgba(255, 180, 50, 0.95)";
                     targetCtx.fillText(txt, (x + w) - (w*0.05), (y + h) - (h*0.05));
@@ -497,12 +499,13 @@
             } else drawImageFX(0, 0, finalW, finalH);
         }
 
-        document.getElementById('downloadCurrent').onclick = () => {
+        function downloadImage() {
+            if (state.selectedIndex === -1) return;
             const link = document.createElement('a');
             link.download = `DIGI_${Date.now()}.JPG`;
             link.href = canvas.toDataURL('image/jpeg', 0.95);
             link.click();
-        };
+        }
 
         document.getElementById('bulkExport').onclick = async () => {
             if (!state.images.length) return;
