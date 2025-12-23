@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Y2K DIGICAM STUDIO // ULTRA PRO</title>
+    <title>Y2K DIGICAM STUDIO // ULTRA PRO V10</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&family=VT323&display=swap" rel="stylesheet">
@@ -14,16 +14,14 @@
             --accent-cyan: #00f0ff;
             --accent-pink: #ff00de;
             --accent-yellow: #ffee00;
-            --bg-color: #f0f5ff;
+            --lcd-orange: #ffaa00;
         }
 
         * { box-sizing: border-box; user-select: none; cursor: crosshair; -webkit-tap-highlight-color: transparent; }
 
-        @keyframes float { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-10px) rotate(2deg); } }
-        @keyframes pulse-neon { 0% { text-shadow: 0 0 5px var(--accent-cyan); } 50% { text-shadow: 0 0 20px var(--accent-cyan), 0 0 30px var(--accent-pink); } 100% { text-shadow: 0 0 5px var(--accent-cyan); } }
-        @keyframes shake { 0% { transform: translate(0,0); } 25% { transform: translate(2px, 2px); } 50% { transform: translate(-2px, -2px); } 100% { transform: translate(0,0); } }
-        @keyframes bounce-in { 0% { transform: scale(0.3); opacity: 0; } 70% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
-
+        @keyframes shake { 0% { transform: translate(0,0); } 25% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(0,0); } }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
         body {
             margin: 0; padding: 0;
             background-color: #e0e8ff;
@@ -45,484 +43,573 @@
             background: white; border: 4px solid #000; border-radius: 24px;
             box-shadow: 15px 15px 0px #000;
             display: grid; grid-template-columns: 320px 1fr 320px; grid-template-rows: 70px 1fr 50px;
-            overflow: hidden; animation: bounce-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-            position: relative;
+            overflow: hidden; position: relative; animation: bounce-in 0.5s ease-out;
         }
 
+        @keyframes bounce-in { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
         @media (max-width: 1024px) {
-            .magazine-grid { grid-template-columns: 1fr; grid-template-rows: 60px 1fr 180px; height: 100vh; width: 100vw; border-radius: 0; border: none; }
-            .sidebar { order: 3; border-right: none; border-top: 3px solid #000; flex-direction: row !important; overflow-x: auto; overflow-y: hidden; height: auto; padding: 10px; gap: 15px; }
+            .magazine-grid { grid-template-columns: 1fr; grid-template-rows: 60px 1fr; height: 100vh; width: 100vw; border-radius: 0; border: none; }
+            .sidebar { 
+                position: absolute; left: -340px; top: 60px; height: calc(100% - 60px); 
+                z-index: 2000; transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); width: 310px; border-right: 5px solid #000;
+                background: white; box-shadow: 5px 0 15px rgba(0,0,0,0.2);
+            }
+            .sidebar.open { left: 0; }
             .right-bar { display: none; }
-            .header .logo { font-size: 1.8rem; }
-            .control-group { min-width: 180px; padding: 5px; }
-            .panel-header { font-size: 1rem; padding: 4px 8px; white-space: nowrap; }
-            .main-stage { order: 2; height: 100%; }
+            .main-stage { order: 2; height: 100%; width: 100%; }
             .footer { display: none !important; }
-            .mobile-save-container { display: flex !important; flex-direction: column; gap: 8px; min-width: 140px; justify-content: center; }
+            .mobile-menu-btn { display: block !important; }
         }
 
         .header {
             grid-column: 1 / -1; background: repeating-linear-gradient(45deg, #fff, #fff 10px, #f0f0f0 10px, #f0f0f0 20px);
-            display: flex; align-items: center; padding: 0 25px; border-bottom: 4px solid #000; justify-content: space-between;
+            display: flex; align-items: center; padding: 0 25px; border-bottom: 4px solid #000; justify-content: space-between; z-index: 10;
         }
 
-        .logo { font-family: 'VT323', monospace; font-size: 2.8rem; color: #000; font-weight: 900; animation: shake 4s infinite linear; }
+        .mobile-menu-btn { display: none; background: #000; color: #fff; border: none; padding: 12px; font-size: 1.5rem; cursor: pointer; border-radius: 0 0 10px 0; }
 
-        .sidebar { background: #fff; border-right: 3px solid #000; padding: 20px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; scroll-behavior: smooth; }
+        .logo { font-family: 'VT323', monospace; font-size: 2.5rem; color: #000; font-weight: 900; animation: shake 5s infinite linear; }
 
-        .panel-header { font-family: 'VT323', monospace; font-size: 1.5rem; color: #fff; background: #000; padding: 8px 15px; border-radius: 4px; margin: 5px 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
-        .panel-header:hover { background: var(--primary); transform: skew(-5deg); }
+        .sidebar { background: #fff; border-right: 3px solid #000; padding: 20px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
 
-        .control-group { margin-bottom: 10px; padding: 10px; border: 2px solid transparent; border-radius: 12px; transition: 0.2s; }
+        .panel-header { font-family: 'VT323', monospace; font-size: 1.4rem; color: #fff; background: #000; padding: 6px 12px; border-radius: 4px; margin: 4px 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .panel-header:hover { transform: skewX(-5deg); background: var(--primary); }
+
+        .control-group { margin-bottom: 8px; padding: 10px; border: 2px solid transparent; border-radius: 10px; transition: 0.2s; }
         .control-group:hover { border-color: #000; background: #fafafa; }
-        .control-label { font-size: 0.75rem; font-weight: 900; color: #000; margin-bottom: 5px; display: flex; justify-content: space-between; text-transform: uppercase; }
+        .control-label { font-size: 0.7rem; font-weight: 900; color: #000; margin-bottom: 4px; display: flex; justify-content: space-between; text-transform: uppercase; }
 
-        input[type="range"] { -webkit-appearance: none; width: 100%; height: 12px; background: #eee; border: 2px solid #000; border-radius: 10px; outline: none; margin: 10px 0; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: var(--accent-yellow); border: 2px solid #000; border-radius: 4px; cursor: pointer; transition: 0.1s; box-shadow: 2px 2px 0px #000; }
-
-        .main-stage { background: #222; position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden; perspective: 1000px; touch-action: none; }
+        input[type="range"] { 
+            -webkit-appearance: none; 
+            width: 100%; 
+            height: 10px; 
+            background: #eee; 
+            border: 2px solid #000; 
+            border-radius: 10px; 
+            outline: none; 
+            margin: 8px 0; 
+            cursor: pointer;
+            pointer-events: auto;
+        }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: var(--accent-yellow); border: 2px solid #000; border-radius: 4px; cursor: pointer; box-shadow: 2px 2px 0px #000; transition: transform 0.1s; }
+        input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.2); background: var(--accent-pink); cursor: grabbing; }
         
-        .canvas-container { position: relative; display: flex; justify-content: center; align-items: center; transform-origin: center center; transition: transform 0.05s linear; will-change: transform; }
+        input[type="date"] { width: 100%; padding: 5px; border: 2px solid #000; font-family: 'VT323'; font-size: 1rem; margin-top: 5px; }
+        input[type="checkbox"] { width: 20px; height: 20px; border: 2px solid #000; accent-color: var(--accent-cyan); vertical-align: middle; }
 
-        canvas { box-shadow: 20px 20px 0px rgba(0,0,0,0.5); image-rendering: auto; background: #000; max-width: 90vw; max-height: 70vh; }
-
-        #loadingOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; }
+        .main-stage { background: #111; position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden; }
         
-        .drop-zone { position: absolute; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #fff; z-index: 10; transition: 0.5s; }
-        .drop-zone.hidden { transform: translateY(-100%); opacity: 0; pointer-events: none; }
+        canvas, video { box-shadow: 15px 15px 0px rgba(0,0,0,1); background: #000; max-width: 85vw; max-height: 70vh; cursor: pointer; transition: filter 0.05s linear; }
 
-        .upload-btn { background: var(--accent-cyan); color: #000; font-family: 'VT323', monospace; font-size: 2rem; padding: 20px 50px; border: 4px solid #000; border-radius: 0px; cursor: pointer; box-shadow: 8px 8px 0px #000; animation: float 3s infinite ease-in-out; }
+        .drop-zone { position: absolute; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #fff; z-index: 100; transition: transform 0.4s ease; }
+        .drop-zone.hidden { transform: translateY(-100%); pointer-events: none; }
+
+        .upload-btn { background: var(--accent-cyan); color: #000; font-family: 'VT323', monospace; font-size: 1.8rem; padding: 15px 40px; border: 4px solid #000; cursor: pointer; box-shadow: 6px 6px 0px #000; transition: 0.1s; }
+        .upload-btn:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0px #000; }
 
         .right-bar { background: #fff; border-left: 3px solid #000; display: flex; flex-direction: column; }
-        .file-list { flex: 1; overflow-y: auto; padding: 15px; background: #f9f9f9; display: flex; flex-direction: column; gap: 10px; }
-        .file-item { display: flex; align-items: center; padding: 10px; border: 3px solid #000; font-size: 0.8rem; font-weight: 600; gap: 12px; cursor: pointer; background: white; transition: 0.2s; }
+        .file-list { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; background: #f0f0f0; }
+        .file-item { position: relative; display: flex; align-items: center; padding: 8px; border: 3px solid #000; font-size: 0.75rem; font-weight: 700; gap: 10px; cursor: pointer; background: white; transition: 0.2s; }
         .file-item.active { background: var(--accent-yellow); box-shadow: 4px 4px 0px #000; }
-        .file-item img { width: 60px; height: 60px; object-fit: cover; border: 2px solid #000; }
+        .file-item img, .file-item video { width: 55px; height: 55px; object-fit: cover; border: 2px solid #000; }
 
-        .footer { grid-column: 1 / -1; background: #000; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; font-size: 0.8rem; }
+        .delete-btn { position: absolute; top: -8px; right: -8px; background: #ff0000; color: white; border: 2px solid #000; border-radius: 50%; width: 24px; height: 24px; font-size: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; }
+
+        .footer { grid-column: 1 / -1; background: #000; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; font-size: 0.75rem; }
         
-        .export-btn { background: var(--accent-pink); border: 3px solid #000; padding: 8px 25px; font-family: 'VT323', monospace; font-size: 1.4rem; color: #000; border-radius: 0; cursor: pointer; box-shadow: 4px 4px 0px #000; transition: 0.1s; }
-        .export-btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px #000; }
+        .mode-selector { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; margin: 8px 0; }
+        .mode-opt { border: 2px solid #000; padding: 6px; text-align: center; font-size: 0.7rem; font-weight: 900; cursor: pointer; background: #eee; transition: 0.2s; }
+        .mode-opt.active { background: var(--accent-cyan); box-shadow: inset 2px 2px 0px #000; }
 
-        .frame-selector { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin: 10px 0; }
-        .frame-opt { border: 2px solid #000; padding: 5px; text-align: center; font-size: 0.7rem; font-weight: 900; cursor: pointer; background: #eee; }
-        .frame-opt.active { background: var(--accent-cyan); }
+        #playbackIndicator { position: absolute; bottom: 20px; right: 20px; background: rgba(0,0,0,0.7); color: #fff; padding: 5px 10px; font-family: 'VT323'; font-size: 1.2rem; pointer-events: none; opacity: 0; transition: 0.3s; z-index: 100; }
+        
+        #videoDateOverlay {
+            position: absolute; bottom: 8%; right: 8%;
+            font-family: 'VT323', monospace; color: var(--lcd-orange);
+            font-size: 2.2rem; font-weight: bold;
+            text-shadow: 0 0 5px #ff5500, 2px 2px 0px rgba(0,0,0,0.8);
+            pointer-events: none; display: none; z-index: 200;
+        }
 
-        .hidden-section { display: none; }
-        .hidden-section.show { display: block; }
+        #processingOverlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 5000;
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+            color: white;
+        }
+        .spinner {
+            width: 60px; height: 60px; border: 6px solid rgba(255,255,255,0.2); border-top: 6px solid var(--accent-cyan);
+            border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 20px;
+        }
 
-        .zoom-controls { position: absolute; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 5px; z-index: 5; }
-        .zoom-btn { width: 40px; height: 40px; background: #fff; border: 3px solid #000; font-weight: 900; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .compare-btn {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9); border: 3px solid #000;
+            padding: 12px 24px; font-family: 'VT323'; font-size: 1.4rem;
+            cursor: pointer; z-index: 300; backdrop-filter: blur(4px);
+            box-shadow: 5px 5px 0px rgba(0,0,0,1);
+        }
 
-        .footnote { position: fixed; bottom: 5px; left: 50%; transform: translateX(-50%); font-family: 'VT323'; color: #000; background: var(--accent-yellow); padding: 2px 10px; border: 2px solid #000; z-index: 10000; font-size: 1rem; }
-
-        #onboarding { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); z-index: 20000; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; padding: 20px; font-family: 'VT323'; }
-        .step-card { background: #000; border: 4px solid var(--accent-cyan); padding: 30px; max-width: 440px; box-shadow: 15px 15px 0 var(--accent-pink); animation: bounce-in 0.5s ease; }
-        .step-card h2 { font-size: 2.8rem; margin: 0 0 15px 0; color: var(--accent-yellow); letter-spacing: 2px; }
-        .step-card p { font-size: 1.6rem; margin: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; }
-
-        .mobile-save-container { display: none; }
+        .add-more-btn {
+            background: #000; color: #fff; border: 2px solid #fff;
+            padding: 5px 10px; cursor: pointer; font-family: 'VT323';
+            font-size: 1.2rem; margin-left: auto;
+        }
     </style>
 </head>
 <body>
 
     <div class="scanlines"></div>
-    <div class="footnote">BY ANVI KARANJKAR ★ EST 2025</div>
-
-    <div id="onboarding">
-        <div class="step-card">
-            <h2>INITIALIZING...</h2>
-            <p>1. LOAD FLASH CARD (UPLOAD)</p>
-            <p>2. CHOOSE FILM TYPE (POLA/STRIP)</p>
-            <p>3. TWEAK SENSORS (ISO/BLOOM)</p>
-            <p>4. BURN TO ROLL (EXPORT)</p>
-            <button class="export-btn" style="margin-top:25px; width:100%; background: var(--accent-cyan);" onclick="closeOnboarding()">ENTER STUDIO</button>
-        </div>
-    </div>
 
     <div class="magazine-grid">
         <header class="header">
-            <div class="logo">DIGICAMIFY</div>
-            <div style="display: flex; gap: 15px;">
-                <button id="bulkExport" class="export-btn" style="background: var(--accent-yellow);">ZIP ROLL</button>
-            </div>
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">☰ MENU</button>
+            <div class="logo">DIGICAMIFY PRO</div>
+            <button id="bulkExport" class="upload-btn" style="font-size: 1.1rem; padding: 8px 20px; background: var(--accent-yellow);">ZIP ROLL</button>
         </header>
 
         <aside class="sidebar" id="sidebar">
-            <div class="mobile-save-container">
-                <button class="export-btn" style="width: 100%; background: var(--accent-cyan); font-size: 1.2rem;" onclick="document.getElementById('fileInput').click()">+ ADD</button>
-                <button class="export-btn" style="width: 100%; background: var(--accent-pink); font-size: 1.2rem;" onclick="downloadImage()">SAVE JPG</button>
-            </div>
-
-            <div class="panel-header">★ FILM TYPE</div>
-            <div class="frame-selector" id="frameSelector">
-                <div class="frame-opt" data-type="none">DIGI</div>
-                <div class="frame-opt" data-type="polaroid">POLA</div>
-                <div class="frame-opt" data-type="strip">STRIP</div>
-            </div>
-
-            <div class="panel-header">★ SENSOR</div>
+            <div class="panel-header">★ MASTER FILTER</div>
             <div class="control-group">
-                <div class="control-label"><span>DIGICAM STRENGTH</span> <span id="val-intensity">90%</span></div>
-                <input type="range" id="intensity" min="0" max="100" value="90">
+                <div class="control-label"><span>INTENSITY</span> <span id="val-intensity">80%</span></div>
+                <input type="range" id="intensity" min="0" max="100" value="80">
             </div>
 
-            <div class="panel-header" onclick="toggleSection('basic-controls')">★ OPTICS ▾</div>
-            <div id="basic-controls" class="show">
-                <div class="control-group">
-                    <div class="control-label"><span>LENS BLUR</span> <span id="val-blur">14</span></div>
-                    <input type="range" id="blur" min="0" max="40" value="14">
-                </div>
-                <div class="control-group">
-                    <div class="control-label"><span>SENSOR BLOOM</span> <span id="val-glow">50</span></div>
-                    <input type="range" id="glow" min="0" max="100" value="50">
-                </div>
-                <div class="control-group">
-                    <div class="control-label"><span>ISO NOISE</span> <span id="val-noise">40</span></div>
-                    <input type="range" id="noise" min="0" max="100" value="40">
-                </div>
+            <div class="panel-header">★ MODE</div>
+            <div class="mode-selector">
+                <div class="mode-opt active" data-mode="standard">STD</div>
+                <div class="mode-opt" data-mode="dreamy">DREAM</div>
+                <div class="mode-opt" data-mode="cctv">CCTV</div>
             </div>
 
-            <div class="panel-header" onclick="toggleSection('color-controls')">★ COLOR ▾</div>
-            <div id="color-controls" class="show">
-                <div class="control-group">
-                    <div class="control-label"><span>WARMTH</span> <span id="val-warmth">45</span></div>
-                    <input type="range" id="warmth" min="0" max="100" value="45">
-                </div>
-                <div class="control-group">
-                    <div class="control-label"><span>VIGNETTE</span> <span id="val-vignette">30</span></div>
-                    <input type="range" id="vignette" min="0" max="100" value="30">
-                </div>
+            <div class="panel-header">★ TIMESTAMP</div>
+            <div class="control-group">
+                <label style="font-family: 'VT323'; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; color: black;">
+                    <input type="checkbox" id="showDate" checked> ENABLE STAMP
+                </label>
+                <input type="date" id="datePicker">
             </div>
 
-            <div class="panel-header" onclick="toggleSection('advanced-controls')">★ TIMESTAMP ▾</div>
-            <div id="advanced-controls" class="hidden-section">
-                <div class="control-group">
-                    <input type="date" id="customDate" style="width:100%; border:2px solid #000; padding:5px; margin-bottom:5px;">
-                    <select id="dateFormat" style="width: 100%; border:2px solid #000; padding:5px;">
-                        <option value="YY MM DD">'YY  MM  DD</option>
-                        <option value="DD MM YY">DD  MM  'YY</option>
-                        <option value="MM DD YY">MM  DD  'YY</option>
-                    </select>
-                </div>
+            <div class="panel-header">★ IMAGE CONTROLS</div>
+            <div class="control-group">
+                <div class="control-label"><span>EXPOSURE</span> <span id="val-exposure">0</span></div>
+                <input type="range" id="exposure" min="-100" max="100" value="0">
+            </div>
+            <div class="control-group">
+                <div class="control-label"><span>SATURATION</span> <span id="val-saturation">100%</span></div>
+                <input type="range" id="saturation" min="0" max="200" value="100">
+            </div>
+            <div class="control-group">
+                <div class="control-label"><span>LENS BLUR</span> <span id="val-blur">0</span></div>
+                <input type="range" id="blur" min="0" max="100" value="0">
+            </div>
+
+            <div class="panel-header">★ OPTICS</div>
+            <div class="control-group">
+                <div class="control-label"><span>BLOOM (GLOW)</span> <span id="val-glow">40</span></div>
+                <input type="range" id="glow" min="0" max="100" value="40">
+            </div>
+            <div class="control-group">
+                <div class="control-label"><span>ISO GRAIN</span> <span id="val-noise">30</span></div>
+                <input type="range" id="noise" min="0" max="100" value="30">
+            </div>
+
+            <div class="panel-header">★ TRANSFORM</div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-top:5px;">
+                <button class="mode-opt" style="background:white" onclick="rotateCurrent()">ROTATE 90°</button>
+                <button class="mode-opt" style="background:#ffdddd" onclick="deleteCurrent()">DELETE</button>
             </div>
         </aside>
 
         <main class="main-stage" id="stage">
-            <div class="zoom-controls">
-                <button class="zoom-btn" onclick="adjustZoom(0.2)">+</button>
-                <button class="zoom-btn" onclick="adjustZoom(-0.2)">-</button>
-                <button class="zoom-btn" onclick="resetZoom()">⟲</button>
+            <div id="processingOverlay">
+                <div class="spinner"></div>
+                <div id="processingText" style="font-family: 'VT323'; font-size: 2rem; letter-spacing: 2px;">IMPORTING MEDIA...</div>
             </div>
 
-            <div id="loadingOverlay">
-                <div style="font-size: 3rem; font-family: 'VT323'; animation: pulse-neon 0.5s infinite;">COOKING...</div>
-                <div id="loadProgress" style="font-size: 1.5rem; font-family: 'VT323';">0%</div>
-            </div>
-
-            <div class="drop-zone" id="dropZone">
-                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">LOAD FLASH CARD</button>
-                <p style="margin-top: 15px; font-family: 'VT323'; font-size: 1.2rem;">DRAG & DROP IMAGES HERE</p>
-                <input type="file" id="fileInput" multiple accept="image/*" style="display:none">
-            </div>
-
-            <div class="canvas-container" id="canvasContainer">
-                <canvas id="mainCanvas"></canvas>
-            </div>
+            <div id="playbackIndicator">PAUSED</div>
             
-            <div style="position: absolute; bottom: 20px; left: 20px;">
-                <button id="compareBtn" class="export-btn" style="background:#fff; font-size:1rem;">HOLD TO COMPARE</button>
+            <div class="drop-zone" id="dropZone">
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">UPLOAD PHOTOS/VIDEOS</button>
+                <input type="file" id="fileInput" multiple accept="image/*,video/*" style="display:none">
             </div>
+
+            <div id="mediaContainer" style="position:relative; display: flex; justify-content: center; align-items: center; width: 100%; height: 100%;">
+                <canvas id="mainCanvas"></canvas>
+                <div id="videoWrapper" style="position: relative; display: none;">
+                    <video id="previewVideo" loop muted playsinline onclick="togglePlay()"></video>
+                    <div id="videoDateOverlay">98 01 22</div>
+                </div>
+            </div>
+
+            <button class="compare-btn" id="compareBtn" style="display:none;">HOLD TO COMPARE</button>
         </main>
 
         <aside class="right-bar">
-            <div class="panel-header" style="margin: 15px;">★ ROLL PREVIEW</div>
+            <div class="panel-header" style="margin: 10px; display: flex; align-items: center;">
+                ★ MEDIA ROLL
+                <button class="add-more-btn" onclick="document.getElementById('fileInput').click()">+ ADD</button>
+            </div>
             <div class="file-list" id="fileList"></div>
-            <div style="padding: 15px; border-top: 3px solid #000; display: flex; flex-direction: column; gap: 10px;">
-                <button class="export-btn" style="width: 100%; background: var(--accent-cyan);" onclick="document.getElementById('fileInput').click()">+ ADD PHOTOS</button>
-                <button class="export-btn" style="width: 100%; background: var(--accent-pink);" onclick="downloadImage()">SAVE JPG</button>
+            <div style="padding: 10px; border-top: 3px solid #000;">
+                <button class="upload-btn" style="width:100%; font-size:1rem; background:var(--accent-pink)" onclick="downloadCurrent()">SAVE CURRENT</button>
             </div>
         </aside>
 
         <footer class="footer">
-            <div style="font-family: 'VT323'; letter-spacing: 1px;">MADE BY ANVI KARANJKAR // EST 2025</div>
-            <button class="export-btn" id="downloadCurrent" style="font-size: 1.2rem; height: 80%;" onclick="downloadImage()">SAVE JPG</button>
+            <div style="font-family: 'VT323'; letter-spacing: 1px;">DIGICAMIFY // V10.0 DATABASE ENABLED</div>
+            <div id="statusInfo">STORAGE ACTIVE</div>
         </footer>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
     <script>
+        // --- DATABASE LOGIC (INDEXED DB) ---
+        let db;
+        const request = indexedDB.open("DigicamStudioDB", 1);
+        request.onupgradeneeded = (e) => {
+            db = e.target.result;
+            db.createObjectStore("media", { keyPath: "id", autoIncrement: true });
+        };
+        request.onsuccess = (e) => {
+            db = e.target.result;
+            loadFromDatabase();
+        };
+
         const state = {
-            images: [],
+            media: [],
             selectedIndex: -1,
+            mode: 'standard',
             isComparing: false,
-            zoom: 1.0,
-            pan: { x: 0, y: 0 },
-            frameType: localStorage.getItem('digi_frameType') || 'none',
-            settings: JSON.parse(localStorage.getItem('digi_settings')) || {
-                intensity: 90, glow: 50, blur: 14, noise: 40, 
-                warmth: 45, vignette: 30, 
-                dateFormat: 'YY MM DD', 
-                customDate: new Date().toISOString().split('T')[0]
+            settings: { 
+                intensity: 80, 
+                exposure: 0, 
+                saturation: 100, 
+                blur: 0, 
+                glow: 40, 
+                noise: 30,
+                showDate: true,
+                dateValue: new Date().toISOString().split('T')[0]
             }
         };
 
         const canvas = document.getElementById('mainCanvas');
-        const ctx = canvas.getContext('2d', { alpha: true });
-        const container = document.getElementById('canvasContainer');
-        const fileInput = document.getElementById('fileInput');
+        const ctx = canvas.getContext('2d');
+        const videoEl = document.getElementById('previewVideo');
+        const videoWrapper = document.getElementById('videoWrapper');
+        const processingEl = document.getElementById('processingOverlay');
+        const dateOverlayEl = document.getElementById('videoDateOverlay');
+        const compareBtn = document.getElementById('compareBtn');
 
         function init() {
-            Object.keys(state.settings).forEach(key => {
-                const el = document.getElementById(key);
-                if (el) {
-                    el.value = state.settings[key];
-                    const label = document.getElementById('val-' + key);
-                    if (label) label.innerText = el.value + (key === 'intensity' ? '%' : '');
-                }
-            });
-
-            document.querySelectorAll('.frame-opt').forEach(opt => {
-                if (opt.dataset.type === state.frameType) opt.classList.add('active');
-                opt.onclick = () => {
-                    document.querySelectorAll('.frame-opt').forEach(o => o.classList.remove('active'));
-                    opt.classList.add('active');
-                    state.frameType = opt.dataset.type;
-                    localStorage.setItem('digi_frameType', state.frameType);
-                    render();
-                };
-            });
+            document.getElementById('datePicker').value = state.settings.dateValue;
 
             document.querySelectorAll('input[type="range"]').forEach(slider => {
                 slider.addEventListener('input', (e) => {
-                    state.settings[e.target.id] = parseInt(e.target.value);
-                    const label = document.getElementById('val-' + e.target.id);
-                    if (label) label.innerText = e.target.value + (e.target.id === 'intensity' ? '%' : '');
-                    localStorage.setItem('digi_settings', JSON.stringify(state.settings));
-                    render();
+                    const id = e.target.id;
+                    const val = parseInt(e.target.value);
+                    state.settings[id] = val;
+                    const label = document.getElementById('val-'+id);
+                    if(label) label.innerText = val + (id === 'saturation' || id === 'intensity' ? '%' : '');
+                    refreshView();
                 });
             });
 
-            ['customDate', 'dateFormat'].forEach(id => {
-                document.getElementById(id).addEventListener('change', (e) => {
-                    state.settings[id] = e.target.value;
-                    localStorage.setItem('digi_settings', JSON.stringify(state.settings));
-                    render();
-                });
-            });
-
-            if (!localStorage.getItem('digi_onboard_v2')) {
-                document.getElementById('onboarding').style.display = 'flex';
-            }
-
-            setupInteraction();
-        }
-
-        function closeOnboarding() {
-            document.getElementById('onboarding').style.display = 'none';
-            localStorage.setItem('digi_onboard_v2', 'true');
-        }
-
-        function adjustZoom(amt) {
-            state.zoom = Math.min(Math.max(0.2, state.zoom + amt), 8);
-            updateTransform();
-        }
-
-        function resetZoom() {
-            state.zoom = 1.0; state.pan = { x: 0, y: 0 };
-            updateTransform();
-        }
-
-        function updateTransform() {
-            container.style.transform = `translate(${state.pan.x}px, ${state.pan.y}px) scale(${state.zoom})`;
-        }
-
-        function setupInteraction() {
-            let isDragging = false, lastPos = { x: 0, y: 0 };
-            const startDrag = (x, y) => { isDragging = true; lastPos = { x, y }; };
-            const moveDrag = (x, y) => {
-                if (!isDragging) return;
-                state.pan.x += x - lastPos.x;
-                state.pan.y += y - lastPos.y;
-                lastPos = { x, y };
-                updateTransform();
+            document.getElementById('showDate').onchange = (e) => {
+                state.settings.showDate = e.target.checked;
+                refreshView();
             };
-            const stage = document.getElementById('stage');
-            stage.addEventListener('mousedown', e => startDrag(e.clientX, e.clientY));
-            window.addEventListener('mousemove', e => moveDrag(e.clientX, e.clientY));
-            window.addEventListener('mouseup', () => isDragging = false);
-            stage.addEventListener('touchstart', e => startDrag(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
-            window.addEventListener('touchmove', e => moveDrag(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
-            window.addEventListener('touchend', () => isDragging = false);
 
-            const cmp = document.getElementById('compareBtn');
-            const startCmp = (e) => { e.preventDefault(); state.isComparing = true; render(); };
-            const endCmp = () => { state.isComparing = false; render(); };
-            cmp.addEventListener('mousedown', startCmp);
-            cmp.addEventListener('touchstart', startCmp);
-            window.addEventListener('mouseup', endCmp);
-            window.addEventListener('touchend', endCmp);
+            document.getElementById('datePicker').onchange = (e) => {
+                state.settings.dateValue = e.target.value;
+                refreshView();
+            };
+
+            document.querySelectorAll('[data-mode]').forEach(opt => {
+                opt.onclick = () => {
+                    document.querySelectorAll('[data-mode]').forEach(o => o.classList.remove('active'));
+                    opt.classList.add('active');
+                    state.mode = opt.dataset.mode;
+                    refreshView();
+                };
+            });
+
+            compareBtn.addEventListener('mousedown', (e) => { state.isComparing = true; refreshView(); });
+            compareBtn.addEventListener('touchstart', (e) => { e.preventDefault(); state.isComparing = true; refreshView(); });
+            window.addEventListener('mouseup', () => { state.isComparing = false; refreshView(); });
+            window.addEventListener('touchend', () => { state.isComparing = false; refreshView(); });
         }
 
-        fileInput.onchange = async (e) => {
-            const files = Array.from(e.target.files);
-            if (!files.length) return;
-            document.getElementById('dropZone').classList.add('hidden');
-            document.getElementById('loadingOverlay').style.display = 'flex';
-            for (let i = 0; i < files.length; i++) {
-                document.getElementById('loadProgress').innerText = `${Math.round((i/files.length)*100)}%`;
-                const img = await loadImage(files[i]);
-                state.images.push({ imgObject: img, name: files[i].name, src: img.src });
-                if (state.selectedIndex === -1) state.selectedIndex = 0;
+        async function loadFromDatabase() {
+            const transaction = db.transaction(["media"], "readonly");
+            const store = transaction.objectStore("media");
+            const request = store.getAll();
+            request.onsuccess = async () => {
+                const results = request.result;
+                if(results.length > 0) {
+                    document.getElementById('dropZone').classList.add('hidden');
+                    showProcessing(true, "RELOADING GALLERY...");
+                    for(let data of results) {
+                        const blob = data.file;
+                        const url = URL.createObjectURL(blob);
+                        const obj = { id: data.id, type: data.type, src: url, name: data.name, rotation: data.rotation || 0 };
+                        if (obj.type === 'image') {
+                            obj.img = await new Promise(r => { 
+                                const i = new Image(); 
+                                i.onload = () => r(i); 
+                                i.src = url; 
+                            });
+                        }
+                        state.media.push(obj);
+                    }
+                    updateQueue();
+                    selectMedia(state.media.length - 1);
+                    showProcessing(false);
+                    compareBtn.style.display = 'block';
+                }
+            };
+        }
+
+        function refreshView() {
+            if (state.selectedIndex !== -1) {
+                const item = state.media[state.selectedIndex];
+                if (item.type === 'video') applyVideoFX();
+                else render();
             }
-            document.getElementById('loadingOverlay').style.display = 'none';
-            updateQueueUI();
-            render();
+        }
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+
+        function togglePlay() {
+            if (videoEl.paused) { videoEl.play(); showIndicator("PLAYING"); } 
+            else { videoEl.pause(); showIndicator("PAUSED"); }
+        }
+
+        function showIndicator(text) {
+            const ind = document.getElementById('playbackIndicator');
+            ind.innerText = text; ind.style.opacity = 1;
+            setTimeout(() => { if(ind.innerText === text) ind.style.opacity = 0; }, 1200);
+        }
+
+        function showProcessing(show, text = "DEVELOPING...") {
+            document.getElementById('processingText').innerText = text;
+            processingEl.style.display = show ? 'flex' : 'none';
+        }
+
+        function formatDisplayDate(dateStr) {
+            const d = new Date(dateStr);
+            const yy = d.getFullYear().toString().slice(-2);
+            const mm = (d.getMonth() + 1).toString().padStart(2, '0');
+            const dd = (d.getDate() + 1).toString().padStart(2, '0'); 
+            return `'${yy} ${mm} ${dd}`;
+        }
+
+        document.getElementById('fileInput').onchange = async (e) => {
+            const files = Array.from(e.target.files);
+            if(files.length === 0) return;
+            document.getElementById('dropZone').classList.add('hidden');
+            showProcessing(true, "SAVING TO BROWSER...");
+            
+            const transaction = db.transaction(["media"], "readwrite");
+            const store = transaction.objectStore("media");
+
+            setTimeout(async () => {
+                for (let file of files) {
+                    const type = file.type.startsWith('video') ? 'video' : 'image';
+                    const dbId = store.add({ type, file, name: file.name, rotation: 0 });
+                    
+                    const url = URL.createObjectURL(file);
+                    const obj = { type, src: url, name: file.name, rotation: 0 };
+                    
+                    if (type === 'image') {
+                        obj.img = await new Promise(r => { 
+                            const i = new Image(); 
+                            i.onload = () => r(i); 
+                            i.src = url; 
+                        });
+                    }
+                    state.media.push(obj);
+                }
+                updateQueue();
+                selectMedia(state.media.length - 1);
+                showProcessing(false);
+                compareBtn.style.display = 'block';
+            }, 100);
         };
 
-        function loadImage(file) {
-            return new Promise(resolve => {
-                const img = new Image();
-                img.onload = () => resolve(img);
-                img.src = URL.createObjectURL(file);
-            });
-        }
-
-        function selectImage(index) {
+        function selectMedia(index) {
             state.selectedIndex = index;
-            updateQueueUI();
-            resetZoom();
-            render();
+            const item = state.media[index];
+            if (item.type === 'video') {
+                canvas.style.display = 'none';
+                videoWrapper.style.display = 'block';
+                videoEl.src = item.src;
+                videoEl.play().catch(() => {});
+                applyVideoFX();
+            } else {
+                videoEl.pause();
+                videoWrapper.style.display = 'none';
+                canvas.style.display = 'block';
+                render();
+            }
+            updateQueue();
         }
 
-        function updateQueueUI() {
+        function render() {
+            const item = state.media[state.selectedIndex];
+            if (!item || item.type !== 'image') return;
+            const s = state.settings;
+            const masterMix = state.isComparing ? 0 : (s.intensity / 100);
+            const blurVal = (s.blur / 20) * masterMix;
+            const isRotated = (item.rotation / 90) % 2 !== 0;
+            canvas.width = isRotated ? item.img.height : item.img.width;
+            canvas.height = isRotated ? item.img.width : item.img.height;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.translate(canvas.width/2, canvas.height/2);
+            ctx.rotate((item.rotation * Math.PI) / 180);
+            ctx.translate(-item.img.width/2, -item.img.height/2);
+
+            let filters = `brightness(${1 + (s.exposure/150 * masterMix)}) saturate(${100 + ((s.saturation - 100) * masterMix)}%) blur(${blurVal}px)`;
+            if (state.mode === 'standard') filters += ` contrast(${100 + (25 * masterMix)}%) brightness(${100 - (8 * masterMix)}%) sepia(${15 * masterMix}%)`;
+            else if (state.mode === 'cctv') filters += ` grayscale(${100 * masterMix}%) contrast(${150 + (100 * masterMix)}%) brightness(${80 + (40 * masterMix)}%)`;
+            else if (state.mode === 'dreamy') filters += ` saturate(${120 + (60 * masterMix)}%) contrast(${90 * masterMix}%)`;
+            
+            ctx.filter = filters;
+            ctx.drawImage(item.img, 0, 0);
+
+            if (!state.isComparing) {
+                if (s.glow > 0) {
+                    ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = (s.glow / 120) * masterMix; 
+                    ctx.filter = `blur(${20 * masterMix}px) brightness(1.3)`;
+                    ctx.drawImage(item.img, 0, 0);
+                }
+                if (s.noise > 0) {
+                    ctx.globalCompositeOperation = 'overlay'; ctx.globalAlpha = (s.noise / 100) * masterMix;
+                    const pCanvas = document.createElement('canvas'); pCanvas.width = 128; pCanvas.height = 128;
+                    const pCtx = pCanvas.getContext('2d');
+                    const imgData = pCtx.createImageData(128, 128);
+                    for(let i=0; i<imgData.data.length; i+=4) {
+                        const v = (Math.random() * 255) | 0;
+                        imgData.data[i] = v; imgData.data[i+1] = v; imgData.data[i+2] = v; imgData.data[i+3] = 255; 
+                    }
+                    pCtx.putImageData(imgData, 0, 0); ctx.fillStyle = ctx.createPattern(pCanvas, 'repeat');
+                    ctx.fillRect(0, 0, item.img.width, item.img.height);
+                }
+                if (s.showDate) {
+                    ctx.restore(); ctx.save();
+                    ctx.translate(canvas.width/2, canvas.height/2); ctx.rotate((item.rotation * Math.PI) / 180);
+                    ctx.translate(-item.img.width/2, -item.img.height/2);
+                    ctx.fillStyle = '#ffaa00'; ctx.font = `bold ${Math.max(14, item.img.height * 0.045)}px "VT323", monospace`;
+                    ctx.shadowColor = '#ff5500'; ctx.shadowBlur = 4; ctx.textAlign = 'right';
+                    ctx.fillText(formatDisplayDate(s.dateValue), item.img.width * 0.94, item.img.height * 0.92);
+                }
+            }
+            ctx.restore();
+        }
+
+        function applyVideoFX() {
+            if (state.selectedIndex === -1 || state.media[state.selectedIndex].type !== 'video') return;
+            const s = state.settings;
+            const master = state.isComparing ? 0 : (s.intensity / 100);
+            const blurVal = (s.blur / 20) * master;
+            let vFilter = `brightness(${1 + (s.exposure/150 * master)}) saturate(${100 + ((s.saturation-100) * master)}%) blur(${blurVal}px)`;
+            if (state.mode === 'standard') vFilter += ` contrast(${100 + (25 * master)}%) sepia(${15 * master}%)`;
+            if (state.mode === 'cctv') vFilter += ` grayscale(${100 * master}%) contrast(200%) brightness(120%)`;
+            if (s.glow > 0) vFilter += ` drop-shadow(0 0 ${10*master}px rgba(255,255,255,0.5))`;
+            videoEl.style.filter = vFilter;
+            videoWrapper.style.transform = `rotate(${state.media[state.selectedIndex].rotation}deg)`;
+            dateOverlayEl.style.display = (s.showDate && !state.isComparing) ? 'block' : 'none';
+            dateOverlayEl.innerText = formatDisplayDate(s.dateValue);
+            if (!videoEl.paused) requestAnimationFrame(applyVideoFX);
+        }
+
+        function rotateCurrent() {
+            if(state.selectedIndex === -1) return;
+            state.media[state.selectedIndex].rotation = (state.media[state.selectedIndex].rotation + 90) % 360;
+            // Update DB
+            const tx = db.transaction(["media"], "readwrite");
+            const store = tx.objectStore("media");
+            store.put({ id: state.media[state.selectedIndex].id, type: state.media[state.selectedIndex].type, file: state.media[state.selectedIndex].file, name: state.media[state.selectedIndex].name, rotation: state.media[state.selectedIndex].rotation });
+            refreshView();
+        }
+
+        function deleteCurrent() {
+            if(state.selectedIndex === -1) return;
+            const idToDelete = state.media[state.selectedIndex].id;
+            // DB Delete
+            const tx = db.transaction(["media"], "readwrite");
+            tx.objectStore("media").delete(idToDelete);
+
+            state.media.splice(state.selectedIndex, 1);
+            state.selectedIndex = state.media.length - 1;
+            updateQueue();
+            if(state.selectedIndex !== -1) selectMedia(state.selectedIndex);
+            else {
+                document.getElementById('dropZone').classList.remove('hidden');
+                videoWrapper.style.display='none'; canvas.style.display='none'; compareBtn.style.display='none';
+            }
+        }
+
+        function updateQueue() {
             const list = document.getElementById('fileList');
             list.innerHTML = '';
-            state.images.forEach((img, i) => {
-                const item = document.createElement('div');
-                item.className = `file-item ${i === state.selectedIndex ? 'active' : ''}`;
-                item.innerHTML = `<img src="${img.src}"><span>${img.name.substring(0,12)}...</span>`;
-                item.onclick = () => selectImage(i);
-                list.appendChild(item);
+            state.media.forEach((m, i) => {
+                const div = document.createElement('div');
+                div.className = `file-item ${i === state.selectedIndex ? 'active' : ''}`;
+                div.innerHTML = `<div class="delete-btn" onclick="event.stopPropagation(); deleteIdx(${i})">×</div>${m.type==='image' ? `<img src="${m.src}">` : `<video src="${m.src}"></video>`}<span>${m.name.substring(0,10)}</span>`;
+                div.onclick = () => selectMedia(i);
+                list.appendChild(div);
             });
         }
 
-        function toggleSection(id) { document.getElementById(id).classList.toggle('show'); }
-
-        async function render(targetCtx = ctx, targetCanvas = canvas, overrideImg = null) {
-            const img = overrideImg || (state.selectedIndex !== -1 ? state.images[state.selectedIndex].imgObject : null);
-            if (!img) return;
-
-            const s = state.settings;
-            const f = Math.pow(s.intensity / 100, 0.8) * 1.5; 
-            
-            let finalW = img.width, finalH = img.height;
-
-            if (state.frameType === 'polaroid') { finalW = img.width * 1.2; finalH = img.height * 1.4; } 
-            else if (state.frameType === 'strip') { finalW = img.width * 1.1; finalH = img.height * 3.15; }
-
-            targetCanvas.width = finalW;
-            targetCanvas.height = finalH;
-
-            if (state.isComparing && targetCtx === ctx) {
-                targetCtx.drawImage(img, (finalW-img.width)/2, (finalH-img.height)/2, img.width, img.height);
-                return;
-            }
-
-            if (state.frameType !== 'none') {
-                targetCtx.fillStyle = "white";
-                targetCtx.fillRect(0, 0, finalW, finalH);
-            }
-
-            const drawImageFX = (x, y, w, h) => {
-                targetCtx.save();
-                
-                if (s.blur > 0) targetCtx.filter = `blur(${s.blur * f * (w/1600)}px) contrast(${1 + (0.1 * f)})`;
-                targetCtx.drawImage(img, x, y, w, h);
-                targetCtx.filter = 'none';
-
-                if (s.glow > 0) {
-                    targetCtx.globalCompositeOperation = 'screen';
-                    targetCtx.globalAlpha = (s.glow / 180) * f;
-                    targetCtx.filter = `blur(${25 * f}px) brightness(${1.1 + (0.2 * f)})`;
-                    targetCtx.drawImage(img, x, y, w, h);
-                    targetCtx.globalAlpha = 1.0;
-                    targetCtx.globalCompositeOperation = 'source-over';
-                    targetCtx.filter = 'none';
-                }
-
-                targetCtx.globalCompositeOperation = 'overlay';
-                targetCtx.fillStyle = `rgba(255, 160, 20, ${(s.warmth/220)*f})`;
-                targetCtx.fillRect(x, y, w, h);
-
-                targetCtx.globalCompositeOperation = 'multiply';
-                const v = targetCtx.createRadialGradient(x+w/2, y+h/2, w/4, x+w/2, y+h/2, w/1.1);
-                v.addColorStop(0, 'transparent');
-                v.addColorStop(1, `rgba(0,0,0,${(s.vignette/100)*f})`);
-                targetCtx.fillStyle = v;
-                targetCtx.fillRect(x, y, w, h);
-
-                targetCtx.globalCompositeOperation = 'soft-light';
-                targetCtx.globalAlpha = (s.noise/110)*f;
-                const n = document.createElement('canvas'); n.width = n.height = 128;
-                const nx = n.getContext('2d'), d = nx.createImageData(128, 128);
-                for(let i=0; i<d.data.length; i+=4) { const r = Math.random()*255; d.data[i]=d.data[i+1]=d.data[i+2]=r; d.data[i+3]=255; }
-                nx.putImageData(d,0,0);
-                targetCtx.fillStyle = targetCtx.createPattern(n, 'repeat');
-                targetCtx.fillRect(x, y, w, h);
-                
-                if (f > 0.02) {
-                    targetCtx.globalCompositeOperation = 'source-over';
-                    const dateObj = new Date(s.customDate);
-                    const yy = dateObj.getFullYear().toString().slice(-2), mm = (dateObj.getMonth()+1).toString().padStart(2,'0'), dd = dateObj.getDate().toString().padStart(2,'0');
-                    const txt = s.dateFormat.replace('YY',yy).replace('MM',mm).replace('DD',dd);
-                    const fontSize = w * 0.046;
-                    
-                    targetCtx.font = `bold ${fontSize}px "Courier New", monospace`;
-                    targetCtx.shadowColor = "rgba(255, 100, 0, 0.5)";
-                    targetCtx.shadowBlur = fontSize / 4;
-                    targetCtx.fillStyle = "rgba(255, 140, 0, 0.9)";
-                    targetCtx.textAlign = "right";
-                    targetCtx.fillText(txt, (x + w) - (w*0.05), (y + h) - (h*0.05));
-                    
-                    targetCtx.shadowBlur = 0;
-                    targetCtx.fillStyle = "rgba(255, 180, 50, 0.95)";
-                    targetCtx.fillText(txt, (x + w) - (w*0.05), (y + h) - (h*0.05));
-                }
-                targetCtx.restore();
-            };
-
-            if (state.frameType === 'polaroid') drawImageFX(img.width*0.1, img.width*0.1, img.width, img.height);
-            else if (state.frameType === 'strip') {
-                const margin = img.width * 0.05;
-                for(let i=0; i<3; i++) drawImageFX(margin, margin + (i * (img.height + margin)), img.width, img.height);
-            } else drawImageFX(0, 0, finalW, finalH);
+        function deleteIdx(i) {
+            const idToDelete = state.media[i].id;
+            const tx = db.transaction(["media"], "readwrite");
+            tx.objectStore("media").delete(idToDelete);
+            state.media.splice(i, 1); 
+            updateQueue(); 
+            if(i === state.selectedIndex) deleteCurrent();
         }
 
-        function downloadImage() {
+        function downloadCurrent() {
             if (state.selectedIndex === -1) return;
+            const item = state.media[state.selectedIndex];
             const link = document.createElement('a');
-            link.download = `DIGI_${Date.now()}.JPG`;
-            link.href = canvas.toDataURL('image/jpeg', 0.95);
+            link.download = `DIGI_${Date.now()}.${item.type==='video'?'mp4':'jpg'}`;
+            link.href = item.type === 'video' ? item.src : canvas.toDataURL('image/jpeg', 0.92);
             link.click();
         }
-
+        
         document.getElementById('bulkExport').onclick = async () => {
-            if (!state.images.length) return;
-            document.getElementById('loadingOverlay').style.display = 'flex';
-            const zip = new JSZip(), off = document.createElement('canvas'), oCtx = off.getContext('2d');
-            for (let i = 0; i < state.images.length; i++) {
-                document.getElementById('loadProgress').innerText = `ZIPPING ${i+1}/${state.images.length}`;
-                await render(oCtx, off, state.images[i].imgObject);
-                const blob = await new Promise(r => off.toBlob(r, 'image/jpeg', 0.9));
-                zip.file(`DIGI_${state.images[i].name}`, blob);
-            }
-            const content = await zip.generateAsync({type:"blob"});
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(content);
-            link.download = "DIGICAM_ROLL.zip";
-            link.click();
-            document.getElementById('loadingOverlay').style.display = 'none';
+            if (state.media.length === 0) return;
+            showProcessing(true, "ZIPPING GALLERY...");
+            const zip = new JSZip();
+            setTimeout(async () => {
+                for(let m of state.media) {
+                    if(m.type === 'image') {
+                        const tempCanvas = document.createElement('canvas'); const tempCtx = tempCanvas.getContext('2d');
+                        const s = state.settings; const masterMix = s.intensity / 100;
+                        const isRotated = (m.rotation / 90) % 2 !== 0;
+                        tempCanvas.width = isRotated ? m.img.height : m.img.width;
+                        tempCanvas.height = isRotated ? m.img.width : m.img.height;
+                        tempCtx.translate(tempCanvas.width/2, tempCanvas.height/2);
+                        tempCtx.rotate((m.rotation * Math.PI) / 180);
+                        tempCtx.translate(-m.img.width/2, -m.img.height/2);
+                        tempCtx.filter = `brightness(${1+(s.exposure/150*masterMix)}) saturate(${100+((s.saturation-100)*masterMix)}%)`;
+                        tempCtx.drawImage(m.img, 0, 0);
+                        const blob = await new Promise(r => tempCanvas.toBlob(r, 'image/jpeg', 0.9));
+                        zip.file(m.name, blob);
+                    }
+                }
+                const content = await zip.generateAsync({type:"blob"});
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = "DIGICAM_BATCH.zip";
+                link.click();
+                showProcessing(false);
+            }, 100);
         };
 
         init();
