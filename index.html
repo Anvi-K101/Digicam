@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Y2K DIGICAM STUDIO // ULTRA PRO</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +17,7 @@
             --bg-color: #f0f5ff;
         }
 
-        * { box-sizing: border-box; user-select: none; cursor: crosshair; }
+        * { box-sizing: border-box; user-select: none; cursor: crosshair; -webkit-tap-highlight-color: transparent; }
 
         @keyframes float { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-10px) rotate(2deg); } }
         @keyframes pulse-neon { 0% { text-shadow: 0 0 5px var(--accent-cyan); } 50% { text-shadow: 0 0 20px var(--accent-cyan), 0 0 30px var(--accent-pink); } 100% { text-shadow: 0 0 5px var(--accent-cyan); } }
@@ -46,6 +46,22 @@
             box-shadow: 15px 15px 0px #000;
             display: grid; grid-template-columns: 320px 1fr 320px; grid-template-rows: 70px 1fr 50px;
             overflow: hidden; animation: bounce-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+
+        /* Mobile Responsive Adjustments */
+        @media (max-width: 1024px) {
+            .magazine-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: 60px 1fr 120px 40px;
+                height: 100vh; width: 100vw; border-radius: 0; border: none;
+            }
+            .sidebar { order: 3; border-right: none; border-top: 3px solid #000; flex-direction: row !important; overflow-x: auto; overflow-y: hidden; height: 120px; padding: 10px; }
+            .right-bar { display: none; }
+            .header .logo { font-size: 1.8rem; }
+            .control-group { min-width: 150px; padding: 5px; }
+            .panel-header { font-size: 1rem; padding: 4px 8px; }
+            .main-stage { order: 2; }
         }
 
         .header {
@@ -55,70 +71,58 @@
 
         .logo { font-family: 'VT323', monospace; font-size: 2.8rem; color: #000; font-weight: 900; animation: shake 4s infinite linear; }
 
-        .sidebar { background: #fff; border-right: 3px solid #000; padding: 20px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+        .sidebar { background: #fff; border-right: 3px solid #000; padding: 20px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; scroll-behavior: smooth; }
 
-        .panel-header { font-family: 'VT323', monospace; font-size: 1.5rem; color: #fff; background: #000; padding: 8px 15px; border-radius: 4px; margin: 5px 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .panel-header { font-family: 'VT323', monospace; font-size: 1.5rem; color: #fff; background: #000; padding: 8px 15px; border-radius: 4px; margin: 5px 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
         .panel-header:hover { background: var(--primary); transform: skew(-5deg); }
 
         .control-group { margin-bottom: 10px; padding: 10px; border: 2px solid transparent; border-radius: 12px; transition: 0.2s; }
         .control-group:hover { border-color: #000; background: #fafafa; }
         .control-label { font-size: 0.75rem; font-weight: 900; color: #000; margin-bottom: 5px; display: flex; justify-content: space-between; text-transform: uppercase; }
 
-        input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: #eee; border: 2px solid #000; border-radius: 10px; outline: none; margin: 10px 0; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: var(--accent-yellow); border: 2px solid #000; border-radius: 4px; cursor: pointer; transition: 0.1s; }
-        input[type="range"]::-webkit-slider-thumb:hover { background: var(--accent-pink); transform: scale(1.1); }
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 12px; background: #eee; border: 2px solid #000; border-radius: 10px; outline: none; margin: 10px 0; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: var(--accent-yellow); border: 2px solid #000; border-radius: 4px; cursor: pointer; transition: 0.1s; box-shadow: 2px 2px 0px #000; }
 
-        .main-stage { background: #222; position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden; perspective: 1000px; }
+        .main-stage { background: #222; position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden; perspective: 1000px; touch-action: none; }
         
-        .canvas-container { 
-            position: relative; 
-            max-width: 90%; 
-            max-height: 90%; 
-            transition: transform 0.1s ease-out;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+        .canvas-container { position: relative; max-width: 90%; max-height: 90%; transition: transform 0.05s linear; display: flex; justify-content: center; align-items: center; }
 
-        canvas { 
-            box-shadow: 20px 20px 0px rgba(0,0,0,0.5); 
-            image-rendering: auto; 
-            background: #000;
-            max-width: 100%;
-            max-height: 80vh;
-        }
+        canvas { box-shadow: 20px 20px 0px rgba(0,0,0,0.5); image-rendering: auto; background: #000; max-width: 100%; max-height: 80vh; }
 
         #loadingOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; }
         
         .drop-zone { position: absolute; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #fff; z-index: 10; transition: 0.5s; }
-        .drop-zone.hidden { transform: translateY(-100%); opacity: 0; }
+        .drop-zone.hidden { transform: translateY(-100%); opacity: 0; pointer-events: none; }
 
         .upload-btn { background: var(--accent-cyan); color: #000; font-family: 'VT323', monospace; font-size: 2rem; padding: 20px 50px; border: 4px solid #000; border-radius: 0px; cursor: pointer; box-shadow: 8px 8px 0px #000; animation: float 3s infinite ease-in-out; }
-        .upload-btn:hover { background: var(--accent-pink); transform: translate(-2px, -2px); box-shadow: 10px 10px 0px #000; }
 
         .right-bar { background: #fff; border-left: 3px solid #000; display: flex; flex-direction: column; }
         .file-list { flex: 1; overflow-y: auto; padding: 15px; background: #f9f9f9; display: flex; flex-direction: column; gap: 10px; }
         .file-item { display: flex; align-items: center; padding: 10px; border: 3px solid #000; font-size: 0.8rem; font-weight: 600; gap: 12px; cursor: pointer; background: white; transition: 0.2s; }
-        .file-item:hover { background: #f0f0f0; transform: translateX(-5px); }
         .file-item.active { background: var(--accent-yellow); box-shadow: 4px 4px 0px #000; }
         .file-item img { width: 60px; height: 60px; object-fit: cover; border: 2px solid #000; }
 
         .footer { grid-column: 1 / -1; background: #000; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; font-size: 0.8rem; }
         
-        .export-btn { background: var(--accent-pink); border: 3px solid #000; padding: 8px 25px; font-family: 'VT323', monospace; font-size: 1.4rem; color: #000; border-radius: 0; cursor: pointer; box-shadow: 4px 4px 0px #000; transition: 0.1s; }
-        .export-btn:active { transform: translate(4px, 4px); box-shadow: 0px 0px 0px; }
+        .export-btn { background: var(--accent-pink); border: 3px solid #000; padding: 8px 25px; font-family: 'VT323', monospace; font-size: 1.4rem; color: #000; border-radius: 0; cursor: pointer; box-shadow: 4px 4px 0px #000; }
 
         .frame-selector { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin: 10px 0; }
         .frame-opt { border: 2px solid #000; padding: 5px; text-align: center; font-size: 0.7rem; font-weight: 900; cursor: pointer; background: #eee; }
         .frame-opt.active { background: var(--accent-cyan); }
 
         .hidden-section { display: none; }
-        .hidden-section.show { display: block; animation: shake 0.2s 1; }
+        .hidden-section.show { display: block; }
 
         .zoom-controls { position: absolute; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 5px; z-index: 5; }
-        .zoom-btn { width: 40px; height: 40px; background: #fff; border: 3px solid #000; font-weight: 900; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
+        .zoom-btn { width: 40px; height: 40px; background: #fff; border: 3px solid #000; font-weight: 900; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
         .footnote { position: fixed; bottom: 5px; left: 50%; transform: translateX(-50%); font-family: 'VT323'; color: #000; background: var(--accent-yellow); padding: 2px 10px; border: 2px solid #000; z-index: 10000; font-size: 1rem; }
+
+        /* Onboarding Styles */
+        #onboarding { position: absolute; inset: 0; background: rgba(157, 78, 221, 0.9); z-index: 20000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; padding: 20px; font-family: 'VT323'; }
+        .step-card { background: #000; border: 4px solid var(--accent-cyan); padding: 30px; max-width: 400px; box-shadow: 15px 15px 0 var(--accent-pink); }
+        .step-card h2 { font-size: 2.5rem; margin: 0 0 10px 0; color: var(--accent-yellow); }
+        .step-card p { font-size: 1.4rem; margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -126,19 +130,30 @@
     <div class="scanlines"></div>
     <div class="footnote">BY ANVI KARANJKAR ★ STUDIO PRO V2</div>
 
+    <div id="onboarding">
+        <div class="step-card">
+            <h2>WELCOME PILOT</h2>
+            <p>1. UPLOAD YOUR ROLL</p>
+            <p>2. AUTO-CONVERT TO DIGI</p>
+            <p>3. TWEAK THE SENSORS</p>
+            <p>4. EXPORT THE MEMORIES</p>
+            <button class="export-btn" style="margin-top:20px; width:100%" onclick="closeOnboarding()">START SESSION</button>
+        </div>
+    </div>
+
     <div class="magazine-grid">
         <header class="header">
-            <div class="logo">FLASH_BACK_V2.exe</div>
+            <div class="logo">DIGICAMIFY</div>
             <div style="display: flex; gap: 15px;">
                 <button id="bulkExport" class="export-btn" style="background: var(--accent-yellow);">ZIP ROLL</button>
             </div>
         </header>
 
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="panel-header">★ FILM TYPE</div>
             <div class="frame-selector">
                 <div class="frame-opt active" data-type="none">DIGI</div>
-                <div class="frame-opt" data-type="polaroid">POLA</div>
+                <div class="frame-opt" data-type="polaroid">POLAROID</div>
                 <div class="frame-opt" data-type="strip">STRIP</div>
             </div>
 
@@ -225,7 +240,7 @@
         </aside>
 
         <footer class="footer">
-            <div style="font-family: 'VT323'; letter-spacing: 1px;">MADE BY ANVI KARANJKAR // EST 2024</div>
+            <div style="font-family: 'VT323'; letter-spacing: 1px;">MADE BY ANVI KARANJKAR // EST 2025</div>
             <button class="export-btn" id="downloadCurrent" style="font-size: 1.2rem; height: 80%;">SAVE JPG</button>
         </footer>
     </div>
@@ -239,7 +254,7 @@
             zoom: 1,
             pan: { x: 0, y: 0 },
             frameType: 'none',
-            settings: {
+            settings: JSON.parse(localStorage.getItem('digi_settings')) || {
                 intensity: 85, glow: 45, blur: 12, noise: 35, 
                 warmth: 40, vignette: 25, 
                 dateStamp: true, dateFormat: 'YY MM DD', 
@@ -253,13 +268,35 @@
         const fileInput = document.getElementById('fileInput');
 
         function init() {
+            // Restore UI from state
             Object.keys(state.settings).forEach(key => {
                 const el = document.getElementById(key);
-                if (!el) return;
-                el.addEventListener('input', (e) => {
-                    const val = e.target.type === 'checkbox' ? e.target.checked : (isNaN(e.target.value) ? e.target.value : parseInt(e.target.value));
-                    state.settings[key] = val;
-                    if (document.getElementById('val-' + key)) document.getElementById('val-' + key).innerText = e.target.value + (key==='intensity'?'%':'');
+                if (el) {
+                    if (el.type === 'range') el.value = state.settings[key];
+                    if (el.tagName === 'SELECT' || el.type === 'date') el.value = state.settings[key];
+                    const label = document.getElementById('val-' + key);
+                    if (label) label.innerText = el.value + (key === 'intensity' ? '%' : '');
+                }
+            });
+
+            // Improved Slider Interactions - immediate and deterministic
+            document.querySelectorAll('input[type="range"]').forEach(slider => {
+                slider.addEventListener('input', (e) => {
+                    const id = e.target.id;
+                    const val = parseInt(e.target.value);
+                    state.settings[id] = val;
+                    const label = document.getElementById('val-' + id);
+                    if (label) label.innerText = val + (id === 'intensity' ? '%' : '');
+                    saveState();
+                    requestAnimationFrame(() => render());
+                });
+            });
+
+            // Event listener for Date and Format
+            ['customDate', 'dateFormat'].forEach(id => {
+                document.getElementById(id).addEventListener('change', (e) => {
+                    state.settings[id] = e.target.value;
+                    saveState();
                     render();
                 });
             });
@@ -273,29 +310,57 @@
                 };
             });
 
-            document.getElementById('compareBtn').onmousedown = () => { state.isComparing = true; render(); };
-            document.getElementById('compareBtn').onmouseup = () => { state.isComparing = false; render(); };
-            document.getElementById('compareBtn').onmouseleave = () => { if(state.isComparing) { state.isComparing = false; render(); }};
+            // Touch and Mouse Comparison
+            const startCompare = (e) => { e.preventDefault(); state.isComparing = true; render(); };
+            const endCompare = () => { state.isComparing = false; render(); };
+            const btn = document.getElementById('compareBtn');
+            btn.addEventListener('mousedown', startCompare);
+            btn.addEventListener('touchstart', startCompare);
+            window.addEventListener('mouseup', endCompare);
+            window.addEventListener('touchend', endCompare);
             
-            document.getElementById('stage').onwheel = (e) => {
+            // Zoom Logic
+            document.getElementById('stage').addEventListener('wheel', (e) => {
                 e.preventDefault();
-                const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                adjustZoom(delta);
-            };
+                adjustZoom(e.deltaY > 0 ? -0.1 : 0.1);
+            }, { passive: false });
 
+            // Pan Logic
             let isDragging = false;
             let lastPos = { x: 0, y: 0 };
-            container.onmousedown = (e) => { isDragging = true; lastPos = { x: e.clientX, y: e.clientY }; };
-            window.onmousemove = (e) => {
+            const stage = document.getElementById('stage');
+
+            const onStart = (x, y) => { isDragging = true; lastPos = { x, y }; };
+            const onMove = (x, y) => {
                 if (!isDragging) return;
-                state.pan.x += e.clientX - lastPos.x;
-                state.pan.y += e.clientY - lastPos.y;
-                lastPos = { x: e.clientX, y: e.clientY };
+                state.pan.x += x - lastPos.x;
+                state.pan.y += y - lastPos.y;
+                lastPos = { x, y };
                 updateTransform();
             };
-            window.onmouseup = () => isDragging = false;
 
-            document.getElementById('customDate').value = state.settings.customDate;
+            stage.addEventListener('mousedown', e => onStart(e.clientX, e.clientY));
+            window.addEventListener('mousemove', e => onMove(e.clientX, e.clientY));
+            window.addEventListener('mouseup', () => isDragging = false);
+
+            stage.addEventListener('touchstart', e => onStart(e.touches[0].clientX, e.touches[0].clientY), {passive: true});
+            window.addEventListener('touchmove', e => onMove(e.touches[0].clientX, e.touches[0].clientY), {passive: true});
+            window.addEventListener('touchend', () => isDragging = false);
+
+            if (!localStorage.getItem('digi_visited')) {
+                document.getElementById('onboarding').style.display = 'flex';
+            } else {
+                document.getElementById('onboarding').style.display = 'none';
+            }
+        }
+
+        function closeOnboarding() {
+            document.getElementById('onboarding').style.display = 'none';
+            localStorage.setItem('digi_visited', 'true');
+        }
+
+        function saveState() {
+            localStorage.setItem('digi_settings', JSON.stringify(state.settings));
         }
 
         function adjustZoom(amt) {
@@ -304,8 +369,7 @@
         }
 
         function resetZoom() {
-            state.zoom = 1;
-            state.pan = { x: 0, y: 0 };
+            state.zoom = 1; state.pan = { x: 0, y: 0 };
             updateTransform();
         }
 
@@ -322,11 +386,12 @@
             for (let i = 0; i < files.length; i++) {
                 document.getElementById('loadProgress').innerText = `${Math.round((i/files.length)*100)}%`;
                 const img = await loadImage(files[i]);
-                state.images.push({ imgObject: img, name: files[i].name });
-                if (state.selectedIndex === -1) selectImage(state.images.length - 1);
+                state.images.push({ imgObject: img, name: files[i].name, src: img.src });
+                if (state.selectedIndex === -1) state.selectedIndex = 0;
             }
             document.getElementById('loadingOverlay').style.display = 'none';
             updateQueueUI();
+            render();
         };
 
         function loadImage(file) {
@@ -350,7 +415,7 @@
             state.images.forEach((img, i) => {
                 const item = document.createElement('div');
                 item.className = `file-item ${i === state.selectedIndex ? 'active' : ''}`;
-                item.innerHTML = `<img src="${img.imgObject.src}"><span>${img.name.substring(0,15)}</span>`;
+                item.innerHTML = `<img src="${img.src}"><span>${img.name.substring(0,15)}</span>`;
                 item.onclick = () => selectImage(i);
                 list.appendChild(item);
             });
@@ -368,31 +433,14 @@
             let finalW = img.width;
             let finalH = img.height;
 
-            if (state.frameType === 'polaroid') {
-                finalW = img.width * 1.2;
-                finalH = img.height * 1.4;
-            } else if (state.frameType === 'strip') {
-                finalW = img.width * 1.1;
-                finalH = img.height * 3.15;
-            }
+            if (state.frameType === 'polaroid') { finalW = img.width * 1.2; finalH = img.height * 1.4; } 
+            else if (state.frameType === 'strip') { finalW = img.width * 1.1; finalH = img.height * 3.15; }
 
             targetCanvas.width = finalW;
             targetCanvas.height = finalH;
 
-            // COMPARISON LOGIC (See Original)
             if (state.isComparing && targetCtx === ctx) {
-                if (state.frameType === 'polaroid') {
-                    targetCtx.fillStyle = "white";
-                    targetCtx.fillRect(0,0,finalW, finalH);
-                    targetCtx.drawImage(img, img.width*0.1, img.width*0.1, img.width, img.height);
-                } else if (state.frameType === 'strip') {
-                    targetCtx.fillStyle = "white";
-                    targetCtx.fillRect(0,0,finalW, finalH);
-                    const m = img.width * 0.05;
-                    for(let i=0; i<3; i++) targetCtx.drawImage(img, m, m + (i * (img.height + m)), img.width, img.height);
-                } else {
-                    targetCtx.drawImage(img, 0, 0);
-                }
+                targetCtx.drawImage(img, (finalW-img.width)/2, (finalH-img.height)/2, img.width, img.height);
                 return;
             }
 
@@ -404,40 +452,34 @@
             const drawImageFX = (x, y, w, h) => {
                 targetCtx.save();
                 
-                // 1. Lens Blur
-                if (s.blur > 0) {
-                    targetCtx.filter = `blur(${s.blur * f * (w/1000)}px)`;
-                }
+                if (s.blur > 0) targetCtx.filter = `blur(${s.blur * f * (w/1200)}px)`;
                 targetCtx.drawImage(img, x, y, w, h);
                 targetCtx.filter = 'none';
 
-                // 2. Bloom / Glow
                 if (s.glow > 0) {
                     targetCtx.globalCompositeOperation = 'screen';
-                    targetCtx.globalAlpha = (s.glow / 180) * f;
-                    targetCtx.filter = `blur(${15 * f}px) brightness(1.3)`;
+                    targetCtx.globalAlpha = (s.glow / 200) * f;
+                    targetCtx.filter = `blur(${20 * f}px) brightness(1.2)`;
                     targetCtx.drawImage(img, x, y, w, h);
                     targetCtx.globalCompositeOperation = 'source-over';
                     targetCtx.globalAlpha = 1.0;
                     targetCtx.filter = 'none';
                 }
 
-                // 3. Warmth
                 targetCtx.globalCompositeOperation = 'overlay';
-                targetCtx.fillStyle = `rgba(255, 140, 0, ${(s.warmth/250)*f})`;
+                targetCtx.fillStyle = `rgba(255, 140, 0, ${(s.warmth/280)*f})`;
                 targetCtx.fillRect(x, y, w, h);
 
-                // 4. Vignette
                 targetCtx.globalCompositeOperation = 'multiply';
-                const v = targetCtx.createRadialGradient(x+w/2, y+h/2, 0, x+w/2, y+h/2, w/1.1);
+                const v = targetCtx.createRadialGradient(x+w/2, y+h/2, w/4, x+w/2, y+h/2, w/1.2);
                 v.addColorStop(0, 'transparent');
-                v.addColorStop(1, `rgba(0,0,0,${(s.vignette/100)*f})`);
+                // Intensity scaling for vignette safety
+                v.addColorStop(1, `rgba(0,0,0,${(s.vignette/120)*f})`);
                 targetCtx.fillStyle = v;
                 targetCtx.fillRect(x, y, w, h);
 
-                // 5. ISO Noise
                 targetCtx.globalCompositeOperation = 'soft-light';
-                targetCtx.globalAlpha = (s.noise/100)*f;
+                targetCtx.globalAlpha = (s.noise/120)*f;
                 const nSize = 128;
                 const n = document.createElement('canvas'); n.width = n.height = nSize;
                 const nx = n.getContext('2d'); const d = nx.createImageData(nSize, nSize);
@@ -449,24 +491,23 @@
                 targetCtx.fillStyle = targetCtx.createPattern(n, 'repeat');
                 targetCtx.fillRect(x, y, w, h);
                 
-                // 6. Orangish Yellow Timestamp
-                if (s.intensity > 10) {
+                if (f > 0.1) {
                     targetCtx.globalCompositeOperation = 'source-over';
-                    targetCtx.globalAlpha = 1.0;
+                    targetCtx.globalAlpha = 0.9;
                     const dateObj = new Date(s.customDate);
                     const yy = dateObj.getFullYear().toString().slice(-2);
                     const mm = (dateObj.getMonth()+1).toString().padStart(2,'0');
                     const dd = dateObj.getDate().toString().padStart(2,'0');
-                    
                     let txt = s.dateFormat.replace('YY',yy).replace('MM',mm).replace('DD',dd);
-                    const fontSize = w * 0.045;
+                    
+                    const fontSize = w * 0.048;
                     targetCtx.font = `bold ${fontSize}px "Courier New", monospace`;
-                    targetCtx.shadowColor = "rgba(255, 50, 0, 0.9)";
-                    targetCtx.shadowBlur = fontSize/4;
-                    targetCtx.fillStyle = "#ffcc00"; // Orangish Yellow
-                    targetCtx.fillText(txt, (x + w) - (fontSize*7.5), (y + h) - (fontSize*1.2));
+                    targetCtx.shadowColor = "rgba(255, 50, 0, 0.8)";
+                    targetCtx.shadowBlur = fontSize/6;
+                    targetCtx.fillStyle = "#ffcc00";
+                    targetCtx.textAlign = "right";
+                    targetCtx.fillText(txt, (x + w) - (w*0.05), (y + h) - (h*0.05));
                 }
-
                 targetCtx.restore();
             };
 
