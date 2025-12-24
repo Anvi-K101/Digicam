@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Y2K DIGICAM STUDIO // ULTRA PRO V10</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>DIGICAMIFY - Anvi Karanjkar</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&family=VT323&display=swap" rel="stylesheet">
@@ -17,21 +17,27 @@
             --lcd-orange: #ffaa00;
         }
 
-        * { box-sizing: border-box; user-select: none; cursor: crosshair; -webkit-tap-highlight-color: transparent; }
-
-        @keyframes shake { 0% { transform: translate(0,0); } 25% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(0,0); } }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        body {
-            margin: 0; padding: 0;
+        /* Prevent scrolling on mobile during interaction */
+        html, body { 
+            margin: 0; padding: 0; 
+            height: 100%; overflow: hidden; 
+            position: fixed; width: 100%;
             background-color: #e0e8ff;
             background-image: radial-gradient(var(--primary) 0.5px, transparent 0.5px);
             background-size: 20px 20px;
             font-family: 'Inter', sans-serif;
-            height: 100vh; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
         }
 
+        * { box-sizing: border-box; user-select: none; cursor: crosshair; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+
+        /* Specific touch-action for sliders to prevent page scroll */
+        input[type="range"] { touch-action: none; }
+
+        @keyframes shake { 0% { transform: translate(0,0); } 25% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(0,0); } }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes print-slide { 0% { transform: translateY(-100%); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+        
         .scanlines {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.03) 50%);
@@ -49,17 +55,19 @@
         @keyframes bounce-in { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
         @media (max-width: 1024px) {
-            .magazine-grid { grid-template-columns: 1fr; grid-template-rows: 60px 1fr; height: 100vh; width: 100vw; border-radius: 0; border: none; }
+            .magazine-grid { grid-template-columns: 1fr; grid-template-rows: 50px 1fr; height: 100vh; width: 100vw; border-radius: 0; border: none; }
             .sidebar { 
-                position: absolute; left: -340px; top: 60px; height: calc(100% - 60px); 
-                z-index: 2000; transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); width: 310px; border-right: 5px solid #000;
+                position: absolute; left: -340px; top: 50px; height: calc(100% - 50px); 
+                z-index: 2000; transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); width: 280px; border-right: 5px solid #000;
                 background: white; box-shadow: 5px 0 15px rgba(0,0,0,0.2);
             }
             .sidebar.open { left: 0; }
             .right-bar { display: none; }
-            .main-stage { order: 2; height: 100%; width: 100%; }
+            .main-stage { order: 2; height: 100%; width: 100%; padding-bottom: 20px; }
             .footer { display: none !important; }
-            .mobile-menu-btn { display: block !important; }
+            .mobile-menu-btn { display: block !important; padding: 8px 12px !important; font-size: 1.1rem !important; }
+            .logo { font-size: 1.6rem !important; }
+            #bulkExport { padding: 6px 12px !important; font-size: 0.9rem !important; }
         }
 
         .header {
@@ -71,7 +79,7 @@
 
         .logo { font-family: 'VT323', monospace; font-size: 2.5rem; color: #000; font-weight: 900; animation: shake 5s infinite linear; }
 
-        .sidebar { background: #fff; border-right: 3px solid #000; padding: 20px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+        .sidebar { background: #fff; border-right: 3px solid #000; padding: 20px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 
         .panel-header { font-family: 'VT323', monospace; font-size: 1.4rem; color: #fff; background: #000; padding: 6px 12px; border-radius: 4px; margin: 4px 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
         .panel-header:hover { transform: skewX(-5deg); background: var(--primary); }
@@ -83,24 +91,32 @@
         input[type="range"] { 
             -webkit-appearance: none; 
             width: 100%; 
-            height: 10px; 
+            height: 12px; 
             background: #eee; 
             border: 2px solid #000; 
             border-radius: 10px; 
             outline: none; 
-            margin: 8px 0; 
+            margin: 12px 0; 
             cursor: pointer;
             pointer-events: auto;
         }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: var(--accent-yellow); border: 2px solid #000; border-radius: 4px; cursor: pointer; box-shadow: 2px 2px 0px #000; transition: transform 0.1s; }
-        input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.2); background: var(--accent-pink); cursor: grabbing; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; background: var(--accent-yellow); border: 2px solid #000; border-radius: 50%; cursor: pointer; box-shadow: 2px 2px 0px #000; transition: transform 0.1s; }
+        input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.2); background: var(--accent-pink); }
         
         input[type="date"] { width: 100%; padding: 5px; border: 2px solid #000; font-family: 'VT323'; font-size: 1rem; margin-top: 5px; }
         input[type="checkbox"] { width: 20px; height: 20px; border: 2px solid #000; accent-color: var(--accent-cyan); vertical-align: middle; }
 
         .main-stage { background: #111; position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden; }
         
-        canvas, video { box-shadow: 15px 15px 0px rgba(0,0,0,1); background: #000; max-width: 85vw; max-height: 70vh; cursor: pointer; transition: filter 0.05s linear; }
+        #mediaContainer { position: relative; display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; }
+        canvas, video { box-shadow: 15px 15px 0px rgba(0,0,0,1); background: #000; max-width: 85vw; max-height: 70vh; cursor: pointer; }
+
+        #videoWrapper {
+            position: relative;
+            display: none;
+            overflow: hidden;
+            box-shadow: 15px 15px 0px rgba(0,0,0,1);
+        }
 
         .drop-zone { position: absolute; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #fff; z-index: 100; transition: transform 0.4s ease; }
         .drop-zone.hidden { transform: translateY(-100%); pointer-events: none; }
@@ -125,7 +141,7 @@
         #playbackIndicator { position: absolute; bottom: 20px; right: 20px; background: rgba(0,0,0,0.7); color: #fff; padding: 5px 10px; font-family: 'VT323'; font-size: 1.2rem; pointer-events: none; opacity: 0; transition: 0.3s; z-index: 100; }
         
         #videoDateOverlay {
-            position: absolute; bottom: 8%; right: 8%;
+            position: absolute; bottom: 4%; right: 4%;
             font-family: 'VT323', monospace; color: var(--lcd-orange);
             font-size: 2.2rem; font-weight: bold;
             text-shadow: 0 0 5px #ff5500, 2px 2px 0px rgba(0,0,0,0.8);
@@ -153,19 +169,71 @@
 
         .add-more-btn {
             background: #000; color: #fff; border: 2px solid #fff;
-            padding: 5px 10px; cursor: pointer; font-family: 'VT323';
-            font-size: 1.2rem; margin-left: auto;
+            padding: 4px 8px; cursor: pointer; font-family: 'VT323';
+            font-size: 1rem; margin-left: auto;
         }
+
+        /* EXPORT MODAL */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 10000; display: none;
+            justify-content: center; align-items: center; padding: 20px;
+        }
+        .modal-card {
+            background: white; border: 5px solid #000; border-radius: 20px;
+            max-width: 500px; width: 100%; padding: 30px; position: relative;
+            box-shadow: 15px 15px 0px var(--accent-pink);
+        }
+        .modal-title { font-family: 'VT323'; font-size: 2.5rem; margin-bottom: 15px; color: #000; border-bottom: 4px solid #000; }
+        .modal-btn { 
+            width: 100%; padding: 15px; font-family: 'VT323'; font-size: 1.5rem; 
+            border: 4px solid #000; cursor: pointer; background: var(--accent-cyan);
+            box-shadow: 5px 5px 0px #000; margin-bottom: 10px;
+        }
+        .modal-btn.disabled { background: #ccc; cursor: not-allowed; opacity: 0.6; }
+
+        .print-container {
+            width: 100%; height: 300px; background: #222; border: 4px solid #000;
+            margin-bottom: 20px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center;
+        }
+        .print-animation { animation: print-slide 1.5s ease-out forwards; }
+        
+        .strip-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-height: 200px; overflow-y: auto; padding: 10px; border: 2px solid #000; margin-bottom: 15px; }
+        .strip-item { border: 2px solid #000; cursor: pointer; position: relative; }
+        .strip-item.selected { border-color: var(--accent-cyan); border-width: 4px; box-shadow: 0 0 10px var(--accent-cyan); }
+        .strip-item img { width: 100%; height: 60px; object-fit: cover; }
     </style>
 </head>
 <body>
 
     <div class="scanlines"></div>
 
+    <div id="exportModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-title">SAVE OPTIONS</div>
+            <div id="exportView1">
+                <button class="modal-btn" onclick="triggerPrint('normal')">★ STANDARD DOWNLOAD</button>
+                <button id="btnPolaroid" class="modal-btn" style="background:var(--accent-pink)" onclick="triggerPrint('polaroid')">★ POLAROID PRINT</button>
+                <button id="btnStrip" class="modal-btn" style="background:var(--accent-yellow)" onclick="openStripSelection()">★ PHOTO BOOTH STRIP</button>
+                <button class="modal-btn" style="background:#fff" onclick="closeExport()">CLOSE</button>
+            </div>
+            <div id="exportViewStrip" style="display:none">
+                <div style="font-family:VT323; font-size:1.2rem; margin-bottom:5px;">SELECT 3 PHOTOS:</div>
+                <div class="strip-selector" id="stripSelector"></div>
+                <button class="modal-btn" onclick="triggerPrint('strip')">GENERATE STRIP</button>
+                <button class="modal-btn" style="background:#fff" onclick="cancelStrip()">BACK</button>
+            </div>
+            <div id="exportViewPrint" style="display:none">
+                <div class="print-container" id="printContainer"></div>
+                <button class="modal-btn" id="dlConfirmBtn">DOWNLOAD NOW</button>
+            </div>
+        </div>
+    </div>
+
     <div class="magazine-grid">
         <header class="header">
             <button class="mobile-menu-btn" onclick="toggleSidebar()">☰ MENU</button>
-            <div class="logo">DIGICAMIFY PRO</div>
+            <div class="logo">DIGICAMIFY</div>
             <button id="bulkExport" class="upload-btn" style="font-size: 1.1rem; padding: 8px 20px; background: var(--accent-yellow);">ZIP ROLL</button>
         </header>
 
@@ -176,11 +244,13 @@
                 <input type="range" id="intensity" min="0" max="100" value="80">
             </div>
 
-            <div class="panel-header">★ MODE</div>
-            <div class="mode-selector">
-                <div class="mode-opt active" data-mode="standard">STD</div>
-                <div class="mode-opt" data-mode="dreamy">DREAM</div>
-                <div class="mode-opt" data-mode="cctv">CCTV</div>
+            <div id="modeSection">
+                <div class="panel-header">★ VIDEO MODE</div>
+                <div class="mode-selector">
+                    <div class="mode-opt active" data-mode="standard">STD</div>
+                    <div class="mode-opt" data-mode="dreamy">DREAM</div>
+                    <div class="mode-opt" data-mode="cctv">CCTV</div>
+                </div>
             </div>
 
             <div class="panel-header">★ TIMESTAMP</div>
@@ -235,10 +305,10 @@
                 <input type="file" id="fileInput" multiple accept="image/*,video/*" style="display:none">
             </div>
 
-            <div id="mediaContainer" style="position:relative; display: flex; justify-content: center; align-items: center; width: 100%; height: 100%;">
+            <div id="mediaContainer">
                 <canvas id="mainCanvas"></canvas>
-                <div id="videoWrapper" style="position: relative; display: none;">
-                    <video id="previewVideo" loop muted playsinline onclick="togglePlay()"></video>
+                <div id="videoWrapper">
+                    <video id="previewVideo" loop playsinline onclick="togglePlay()"></video>
                     <div id="videoDateOverlay">98 01 22</div>
                 </div>
             </div>
@@ -253,24 +323,25 @@
             </div>
             <div class="file-list" id="fileList"></div>
             <div style="padding: 10px; border-top: 3px solid #000;">
-                <button class="upload-btn" style="width:100%; font-size:1rem; background:var(--accent-pink)" onclick="downloadCurrent()">SAVE CURRENT</button>
+                <button class="upload-btn" style="width:100%; font-size:1rem; background:var(--accent-pink)" onclick="openExport()">SAVE / PRINT</button>
             </div>
         </aside>
 
         <footer class="footer">
-            <div style="font-family: 'VT323'; letter-spacing: 1px;">DIGICAMIFY // V10.0 DATABASE ENABLED</div>
+            <div style="font-family: 'VT323'; letter-spacing: 1px;">DIGICAMIFY // by Anvi Karanjkar</div>
             <div id="statusInfo">STORAGE ACTIVE</div>
         </footer>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
     <script>
-        // --- DATABASE LOGIC (INDEXED DB) ---
         let db;
-        const request = indexedDB.open("DigicamStudioDB", 1);
+        const request = indexedDB.open("DigicamStudioDB", 2);
         request.onupgradeneeded = (e) => {
             db = e.target.result;
-            db.createObjectStore("media", { keyPath: "id", autoIncrement: true });
+            if(!db.objectStoreNames.contains("media")) {
+                db.createObjectStore("media", { keyPath: "id", autoIncrement: true });
+            }
         };
         request.onsuccess = (e) => {
             db = e.target.result;
@@ -280,6 +351,7 @@
         const state = {
             media: [],
             selectedIndex: -1,
+            selectedStripIds: [],
             mode: 'standard',
             isComparing: false,
             settings: { 
@@ -306,14 +378,16 @@
             document.getElementById('datePicker').value = state.settings.dateValue;
 
             document.querySelectorAll('input[type="range"]').forEach(slider => {
-                slider.addEventListener('input', (e) => {
+                const updateHandler = (e) => {
                     const id = e.target.id;
                     const val = parseInt(e.target.value);
                     state.settings[id] = val;
                     const label = document.getElementById('val-'+id);
                     if(label) label.innerText = val + (id === 'saturation' || id === 'intensity' ? '%' : '');
                     refreshView();
-                });
+                };
+                slider.addEventListener('input', updateHandler);
+                slider.addEventListener('change', updateHandler);
             });
 
             document.getElementById('showDate').onchange = (e) => {
@@ -339,6 +413,114 @@
             compareBtn.addEventListener('touchstart', (e) => { e.preventDefault(); state.isComparing = true; refreshView(); });
             window.addEventListener('mouseup', () => { state.isComparing = false; refreshView(); });
             window.addEventListener('touchend', () => { state.isComparing = false; refreshView(); });
+        }
+
+        function openExport() {
+            if (state.selectedIndex === -1) return;
+            const currentItem = state.media[state.selectedIndex];
+            
+            // Photo-only enforcement for physical modes
+            if (currentItem.type === 'video') {
+                document.getElementById('btnPolaroid').classList.add('disabled');
+                document.getElementById('btnStrip').classList.add('disabled');
+                document.getElementById('btnPolaroid').onclick = null;
+                document.getElementById('btnStrip').onclick = null;
+            } else {
+                document.getElementById('btnPolaroid').classList.remove('disabled');
+                document.getElementById('btnStrip').classList.remove('disabled');
+                document.getElementById('btnPolaroid').onclick = () => triggerPrint('polaroid');
+                document.getElementById('btnStrip').onclick = openStripSelection;
+            }
+
+            document.getElementById('exportView1').style.display = 'block';
+            document.getElementById('exportViewStrip').style.display = 'none';
+            document.getElementById('exportViewPrint').style.display = 'none';
+            document.getElementById('exportModal').style.display = 'flex';
+        }
+
+        function closeExport() { document.getElementById('exportModal').style.display = 'none'; }
+
+        function openStripSelection() {
+            const selector = document.getElementById('stripSelector');
+            selector.innerHTML = '';
+            state.selectedStripIds = [];
+            
+            state.media.filter(m => m.type === 'image').forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'strip-item';
+                div.innerHTML = `<img src="${m.src}">`;
+                div.onclick = () => {
+                    if (state.selectedStripIds.includes(m.id)) {
+                        state.selectedStripIds = state.selectedStripIds.filter(id => id !== m.id);
+                        div.classList.remove('selected');
+                    } else if (state.selectedStripIds.length < 3) {
+                        state.selectedStripIds.push(m.id);
+                        div.classList.add('selected');
+                    }
+                };
+                selector.appendChild(div);
+            });
+            document.getElementById('exportView1').style.display = 'none';
+            document.getElementById('exportViewStrip').style.display = 'block';
+        }
+
+        function cancelStrip() {
+            document.getElementById('exportViewStrip').style.display = 'none';
+            document.getElementById('exportView1').style.display = 'block';
+        }
+
+        async function triggerPrint(type) {
+            const container = document.getElementById('printContainer');
+            container.innerHTML = '';
+            document.getElementById('exportView1').style.display = 'none';
+            document.getElementById('exportViewStrip').style.display = 'none';
+            document.getElementById('exportViewPrint').style.display = 'block';
+
+            let outputUrl = "";
+            if (type === 'normal') {
+                const item = state.media[state.selectedIndex];
+                outputUrl = item.type === 'video' ? item.src : canvas.toDataURL('image/jpeg', 0.9);
+                const preview = document.createElement('img');
+                preview.src = outputUrl;
+                preview.style.maxWidth = '80%';
+                preview.className = 'print-animation';
+                container.appendChild(preview);
+            } else if (type === 'polaroid') {
+                const pCanvas = document.createElement('canvas');
+                const pCtx = pCanvas.getContext('2d');
+                pCanvas.width = 400; pCanvas.height = 500;
+                pCtx.fillStyle = "white"; pCtx.fillRect(0,0,400,500);
+                pCtx.drawImage(canvas, 20, 20, 360, 360);
+                outputUrl = pCanvas.toDataURL('image/jpeg');
+                const preview = document.createElement('div');
+                preview.style.background = "white"; preview.style.padding = "10px 10px 40px 10px";
+                preview.innerHTML = `<img src="${outputUrl}" style="width:200px; border:1px solid #ddd">`;
+                preview.className = 'print-animation';
+                container.appendChild(preview);
+            } else if (type === 'strip') {
+                if (state.selectedStripIds.length < 1) return alert("Select photos first!");
+                const sCanvas = document.createElement('canvas');
+                const sCtx = sCanvas.getContext('2d');
+                sCanvas.width = 300; sCanvas.height = 800;
+                sCtx.fillStyle = "white"; sCtx.fillRect(0,0,300,800);
+                state.selectedStripIds.forEach((id, idx) => {
+                    const m = state.media.find(item => item.id === id);
+                    sCtx.drawImage(m.img, 20, 20 + (idx * 250), 260, 240);
+                });
+                outputUrl = sCanvas.toDataURL('image/jpeg');
+                const preview = document.createElement('img');
+                preview.src = outputUrl; preview.style.height = '280px';
+                preview.className = 'print-animation';
+                container.appendChild(preview);
+            }
+
+            document.getElementById('dlConfirmBtn').onclick = () => {
+                const link = document.createElement('a');
+                link.download = `DIGI_EXPORT_${Date.now()}.jpg`;
+                link.href = outputUrl;
+                link.click();
+                closeExport();
+            };
         }
 
         async function loadFromDatabase() {
@@ -374,16 +556,28 @@
         function refreshView() {
             if (state.selectedIndex !== -1) {
                 const item = state.media[state.selectedIndex];
-                if (item.type === 'video') applyVideoFX();
-                else render();
+                if (item.type === 'video') {
+                    document.getElementById('modeSection').style.display = 'block';
+                    applyVideoFX();
+                } else {
+                    document.getElementById('modeSection').style.display = 'none'; 
+                    render();
+                }
             }
         }
 
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
         function togglePlay() {
-            if (videoEl.paused) { videoEl.play(); showIndicator("PLAYING"); } 
-            else { videoEl.pause(); showIndicator("PAUSED"); }
+            if (videoEl.paused) { 
+                videoEl.muted = false; 
+                videoEl.play(); 
+                showIndicator("PLAYING"); 
+            } 
+            else { 
+                videoEl.pause(); 
+                showIndicator("PAUSED"); 
+            }
         }
 
         function showIndicator(text) {
@@ -398,10 +592,11 @@
         }
 
         function formatDisplayDate(dateStr) {
+            if(!dateStr) return "'00 00 00";
             const d = new Date(dateStr);
             const yy = d.getFullYear().toString().slice(-2);
             const mm = (d.getMonth() + 1).toString().padStart(2, '0');
-            const dd = (d.getDate() + 1).toString().padStart(2, '0'); 
+            const dd = d.getDate().toString().padStart(2, '0'); 
             return `'${yy} ${mm} ${dd}`;
         }
 
@@ -413,15 +608,20 @@
             
             const transaction = db.transaction(["media"], "readwrite");
             const store = transaction.objectStore("media");
+            
+            // Critical safety stall fix
+            const safetyTimeout = setTimeout(() => {
+                showProcessing(false);
+                updateQueue();
+                if(state.media.length > 0) selectMedia(state.media.length - 1);
+            }, 2000);
 
-            setTimeout(async () => {
-                for (let file of files) {
-                    const type = file.type.startsWith('video') ? 'video' : 'image';
-                    const dbId = store.add({ type, file, name: file.name, rotation: 0 });
-                    
+            for (let file of files) {
+                const type = file.type.startsWith('video') ? 'video' : 'image';
+                const addReq = store.add({ type, file, name: file.name, rotation: 0 });
+                addReq.onsuccess = async (ev) => {
                     const url = URL.createObjectURL(file);
-                    const obj = { type, src: url, name: file.name, rotation: 0 };
-                    
+                    const obj = { id: ev.target.result, type, src: url, name: file.name, rotation: 0 };
                     if (type === 'image') {
                         obj.img = await new Promise(r => { 
                             const i = new Image(); 
@@ -430,28 +630,33 @@
                         });
                     }
                     state.media.push(obj);
-                }
+                };
+            }
+            transaction.oncomplete = () => {
+                clearTimeout(safetyTimeout);
                 updateQueue();
                 selectMedia(state.media.length - 1);
                 showProcessing(false);
                 compareBtn.style.display = 'block';
-            }, 100);
+            };
         };
 
         function selectMedia(index) {
+            if (index < 0) return;
             state.selectedIndex = index;
             const item = state.media[index];
             if (item.type === 'video') {
                 canvas.style.display = 'none';
-                videoWrapper.style.display = 'block';
+                videoWrapper.style.display = 'flex';
                 videoEl.src = item.src;
+                videoEl.load();
                 videoEl.play().catch(() => {});
-                applyVideoFX();
+                refreshView();
             } else {
                 videoEl.pause();
                 videoWrapper.style.display = 'none';
                 canvas.style.display = 'block';
-                render();
+                refreshView();
             }
             updateQueue();
         }
@@ -461,48 +666,60 @@
             if (!item || item.type !== 'image') return;
             const s = state.settings;
             const masterMix = state.isComparing ? 0 : (s.intensity / 100);
-            const blurVal = (s.blur / 20) * masterMix;
+            
             const isRotated = (item.rotation / 90) % 2 !== 0;
             canvas.width = isRotated ? item.img.height : item.img.width;
             canvas.height = isRotated ? item.img.width : item.img.height;
+            
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.save();
             ctx.translate(canvas.width/2, canvas.height/2);
             ctx.rotate((item.rotation * Math.PI) / 180);
             ctx.translate(-item.img.width/2, -item.img.height/2);
 
-            let filters = `brightness(${1 + (s.exposure/150 * masterMix)}) saturate(${100 + ((s.saturation - 100) * masterMix)}%) blur(${blurVal}px)`;
-            if (state.mode === 'standard') filters += ` contrast(${100 + (25 * masterMix)}%) brightness(${100 - (8 * masterMix)}%) sepia(${15 * masterMix}%)`;
-            else if (state.mode === 'cctv') filters += ` grayscale(${100 * masterMix}%) contrast(${150 + (100 * masterMix)}%) brightness(${80 + (40 * masterMix)}%)`;
-            else if (state.mode === 'dreamy') filters += ` saturate(${120 + (60 * masterMix)}%) contrast(${90 * masterMix}%)`;
+            // UPDATED SLIDER MATH: Exposure * 2.5, Saturation * 2.2, Blur / 10 (Increased sensitivity)
+            let filters = `brightness(${1 + (s.exposure/40 * masterMix)}) saturate(${100 + ((s.saturation - 100) * 2.2 * masterMix)}%) blur(${(s.blur / 10) * masterMix}px)`;
+            filters += ` contrast(${100 + (25 * masterMix)}%) sepia(${15 * masterMix}%)`;
             
             ctx.filter = filters;
             ctx.drawImage(item.img, 0, 0);
 
             if (!state.isComparing) {
                 if (s.glow > 0) {
-                    ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = (s.glow / 120) * masterMix; 
+                    ctx.globalCompositeOperation = 'screen'; 
+                    ctx.globalAlpha = (s.glow / 120) * masterMix; 
                     ctx.filter = `blur(${20 * masterMix}px) brightness(1.3)`;
                     ctx.drawImage(item.img, 0, 0);
+                    ctx.globalCompositeOperation = 'source-over';
+                    ctx.globalAlpha = 1.0;
                 }
                 if (s.noise > 0) {
-                    ctx.globalCompositeOperation = 'overlay'; ctx.globalAlpha = (s.noise / 100) * masterMix;
-                    const pCanvas = document.createElement('canvas'); pCanvas.width = 128; pCanvas.height = 128;
+                    ctx.globalCompositeOperation = 'overlay'; 
+                    ctx.globalAlpha = (s.noise / 100) * masterMix;
+                    const pCanvas = document.createElement('canvas'); 
+                    pCanvas.width = 128; pCanvas.height = 128;
                     const pCtx = pCanvas.getContext('2d');
                     const imgData = pCtx.createImageData(128, 128);
                     for(let i=0; i<imgData.data.length; i+=4) {
                         const v = (Math.random() * 255) | 0;
                         imgData.data[i] = v; imgData.data[i+1] = v; imgData.data[i+2] = v; imgData.data[i+3] = 255; 
                     }
-                    pCtx.putImageData(imgData, 0, 0); ctx.fillStyle = ctx.createPattern(pCanvas, 'repeat');
+                    pCtx.putImageData(imgData, 0, 0); 
+                    ctx.fillStyle = ctx.createPattern(pCanvas, 'repeat');
                     ctx.fillRect(0, 0, item.img.width, item.img.height);
+                    ctx.globalCompositeOperation = 'source-over';
+                    ctx.globalAlpha = 1.0;
                 }
                 if (s.showDate) {
                     ctx.restore(); ctx.save();
-                    ctx.translate(canvas.width/2, canvas.height/2); ctx.rotate((item.rotation * Math.PI) / 180);
+                    ctx.translate(canvas.width/2, canvas.height/2); 
+                    ctx.rotate((item.rotation * Math.PI) / 180);
                     ctx.translate(-item.img.width/2, -item.img.height/2);
-                    ctx.fillStyle = '#ffaa00'; ctx.font = `bold ${Math.max(14, item.img.height * 0.045)}px "VT323", monospace`;
-                    ctx.shadowColor = '#ff5500'; ctx.shadowBlur = 4; ctx.textAlign = 'right';
+                    ctx.fillStyle = '#ffaa00'; 
+                    ctx.font = `bold ${Math.max(14, item.img.height * 0.045)}px "VT323", monospace`;
+                    ctx.shadowColor = '#ff5500'; 
+                    ctx.shadowBlur = 4; 
+                    ctx.textAlign = 'right';
                     ctx.fillText(formatDisplayDate(s.dateValue), item.img.width * 0.94, item.img.height * 0.92);
                 }
             }
@@ -513,10 +730,10 @@
             if (state.selectedIndex === -1 || state.media[state.selectedIndex].type !== 'video') return;
             const s = state.settings;
             const master = state.isComparing ? 0 : (s.intensity / 100);
-            const blurVal = (s.blur / 20) * master;
-            let vFilter = `brightness(${1 + (s.exposure/150 * master)}) saturate(${100 + ((s.saturation-100) * master)}%) blur(${blurVal}px)`;
+            let vFilter = `brightness(${1 + (s.exposure/40 * master)}) saturate(${100 + ((s.saturation-100) * 2.2 * master)}%) blur(${(s.blur / 10) * master}px)`;
             if (state.mode === 'standard') vFilter += ` contrast(${100 + (25 * master)}%) sepia(${15 * master}%)`;
             if (state.mode === 'cctv') vFilter += ` grayscale(${100 * master}%) contrast(200%) brightness(120%)`;
+            if (state.mode === 'dreamy' && master > 0) vFilter += ` saturate(150%) brightness(110%)`;
             if (s.glow > 0) vFilter += ` drop-shadow(0 0 ${10*master}px rgba(255,255,255,0.5))`;
             videoEl.style.filter = vFilter;
             videoWrapper.style.transform = `rotate(${state.media[state.selectedIndex].rotation}deg)`;
@@ -528,20 +745,14 @@
         function rotateCurrent() {
             if(state.selectedIndex === -1) return;
             state.media[state.selectedIndex].rotation = (state.media[state.selectedIndex].rotation + 90) % 360;
-            // Update DB
-            const tx = db.transaction(["media"], "readwrite");
-            const store = tx.objectStore("media");
-            store.put({ id: state.media[state.selectedIndex].id, type: state.media[state.selectedIndex].type, file: state.media[state.selectedIndex].file, name: state.media[state.selectedIndex].name, rotation: state.media[state.selectedIndex].rotation });
             refreshView();
         }
 
         function deleteCurrent() {
             if(state.selectedIndex === -1) return;
             const idToDelete = state.media[state.selectedIndex].id;
-            // DB Delete
             const tx = db.transaction(["media"], "readwrite");
             tx.objectStore("media").delete(idToDelete);
-
             state.media.splice(state.selectedIndex, 1);
             state.selectedIndex = state.media.length - 1;
             updateQueue();
@@ -573,15 +784,6 @@
             if(i === state.selectedIndex) deleteCurrent();
         }
 
-        function downloadCurrent() {
-            if (state.selectedIndex === -1) return;
-            const item = state.media[state.selectedIndex];
-            const link = document.createElement('a');
-            link.download = `DIGI_${Date.now()}.${item.type==='video'?'mp4':'jpg'}`;
-            link.href = item.type === 'video' ? item.src : canvas.toDataURL('image/jpeg', 0.92);
-            link.click();
-        }
-        
         document.getElementById('bulkExport').onclick = async () => {
             if (state.media.length === 0) return;
             showProcessing(true, "ZIPPING GALLERY...");
@@ -597,10 +799,14 @@
                         tempCtx.translate(tempCanvas.width/2, tempCanvas.height/2);
                         tempCtx.rotate((m.rotation * Math.PI) / 180);
                         tempCtx.translate(-m.img.width/2, -m.img.height/2);
-                        tempCtx.filter = `brightness(${1+(s.exposure/150*masterMix)}) saturate(${100+((s.saturation-100)*masterMix)}%)`;
+                        tempCtx.filter = `brightness(${1+(s.exposure/40*masterMix)}) saturate(${100+((s.saturation-100)*2.2*masterMix)}%) blur(${(s.blur/10)*masterMix}px)`;
                         tempCtx.drawImage(m.img, 0, 0);
                         const blob = await new Promise(r => tempCanvas.toBlob(r, 'image/jpeg', 0.9));
                         zip.file(m.name, blob);
+                    } else {
+                        const response = await fetch(m.src);
+                        const videoBlob = await response.blob();
+                        zip.file(m.name, videoBlob);
                     }
                 }
                 const content = await zip.generateAsync({type:"blob"});
