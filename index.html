@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>DIGICAMIFY - Anvi Karanjkar</title>
+    <title>Y2K DIGICAM STUDIO // ULTRA PRO V10.3 PHOTO-FIX</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&family=VT323&display=swap" rel="stylesheet">
@@ -62,8 +62,19 @@
                 background: white; box-shadow: 5px 0 15px rgba(0,0,0,0.2);
             }
             .sidebar.open { left: 0; }
-            .right-bar { display: none; }
-            .main-stage { order: 2; height: 100%; width: 100%; padding-bottom: 20px; }
+            
+            /* MOBILE DROPDOWN MEDIA ROLL IMPLEMENTATION */
+            .right-bar { 
+                position: absolute; bottom: 0; left: 0; width: 100%; height: auto; 
+                max-height: 40px; z-index: 1500; transition: max-height 0.4s ease;
+                border-left: none; border-top: 4px solid #000; background: #fff;
+            }
+            .right-bar.expanded { max-height: 70vh; }
+            .mobile-roll-toggle { 
+                display: flex !important; justify-content: center; align-items: center; 
+                height: 36px; background: var(--accent-yellow); font-family: 'VT323'; font-size: 1.2rem; font-weight: bold; cursor: pointer; border: none; width: 100%;
+            }
+            .main-stage { order: 2; height: calc(100% - 90px); width: 100%; padding-bottom: 20px; }
             .footer { display: none !important; }
             .mobile-menu-btn { display: block !important; padding: 8px 12px !important; font-size: 1.1rem !important; }
             .logo { font-size: 1.6rem !important; }
@@ -109,7 +120,7 @@
         .main-stage { background: #111; position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden; }
         
         #mediaContainer { position: relative; display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; }
-        canvas, video { box-shadow: 15px 15px 0px rgba(0,0,0,1); background: #000; max-width: 85vw; max-height: 70vh; cursor: pointer; }
+        canvas, video { box-shadow: 15px 15px 0px rgba(0,0,0,1); background: #000; max-width: 85vw; max-height: 70vh; cursor: pointer; object-fit: contain; }
 
         #videoWrapper {
             position: relative;
@@ -125,6 +136,7 @@
         .upload-btn:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0px #000; }
 
         .right-bar { background: #fff; border-left: 3px solid #000; display: flex; flex-direction: column; }
+        .mobile-roll-toggle { display: none; }
         .file-list { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; background: #f0f0f0; }
         .file-item { position: relative; display: flex; align-items: center; padding: 8px; border: 3px solid #000; font-size: 0.75rem; font-weight: 700; gap: 10px; cursor: pointer; background: white; transition: 0.2s; }
         .file-item.active { background: var(--accent-yellow); box-shadow: 4px 4px 0px #000; }
@@ -233,7 +245,7 @@
     <div class="magazine-grid">
         <header class="header">
             <button class="mobile-menu-btn" onclick="toggleSidebar()">☰ MENU</button>
-            <div class="logo">DIGICAMIFY</div>
+            <div class="logo">DIGICAMIFY PRO</div>
             <button id="bulkExport" class="upload-btn" style="font-size: 1.1rem; padding: 8px 20px; background: var(--accent-yellow);">ZIP ROLL</button>
         </header>
 
@@ -316,7 +328,8 @@
             <button class="compare-btn" id="compareBtn" style="display:none;">HOLD TO COMPARE</button>
         </main>
 
-        <aside class="right-bar">
+        <aside class="right-bar" id="rightBar">
+            <button class="mobile-roll-toggle" onclick="toggleMediaRoll()">★ MEDIA ROLL ▲</button>
             <div class="panel-header" style="margin: 10px; display: flex; align-items: center;">
                 ★ MEDIA ROLL
                 <button class="add-more-btn" onclick="document.getElementById('fileInput').click()">+ ADD</button>
@@ -328,24 +341,32 @@
         </aside>
 
         <footer class="footer">
-            <div style="font-family: 'VT323'; letter-spacing: 1px;">DIGICAMIFY // by Anvi Karanjkar</div>
-            <div id="statusInfo">STORAGE ACTIVE</div>
+            <div style="font-family: 'VT323'; letter-spacing: 1px;">DIGICAMIFY // V10.3 PHOTO-OPT</div>
+            <div id="statusInfo" id="storageStatus">STORAGE ACTIVE</div>
         </footer>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
     <script>
-        let db;
+        let db = null;
+        let isSessionMode = false;
+
+        // FIXED DATABASE INITIALIZATION FOR INCOGNITO/PRODUCTION
         const request = indexedDB.open("DigicamStudioDB", 2);
         request.onupgradeneeded = (e) => {
-            db = e.target.result;
-            if(!db.objectStoreNames.contains("media")) {
-                db.createObjectStore("media", { keyPath: "id", autoIncrement: true });
+            const upgradeDb = e.target.result;
+            if(!upgradeDb.objectStoreNames.contains("media")) {
+                upgradeDb.createObjectStore("media", { keyPath: "id", autoIncrement: true });
             }
         };
         request.onsuccess = (e) => {
             db = e.target.result;
             loadFromDatabase();
+        };
+        request.onerror = (e) => {
+            console.warn("IndexedDB blocked (Incognito Mode). Switching to Session Mode.");
+            isSessionMode = true;
+            document.getElementById('statusInfo').innerText = "SESSION MODE (NO SAVE)";
         };
 
         const state = {
@@ -415,11 +436,13 @@
             window.addEventListener('touchend', () => { state.isComparing = false; refreshView(); });
         }
 
+        /* MOBILE ROLL UI */
+        function toggleMediaRoll() { document.getElementById('rightBar').classList.toggle('expanded'); }
+
         function openExport() {
             if (state.selectedIndex === -1) return;
             const currentItem = state.media[state.selectedIndex];
             
-            // Photo-only enforcement for physical modes
             if (currentItem.type === 'video') {
                 document.getElementById('btnPolaroid').classList.add('disabled');
                 document.getElementById('btnStrip').classList.add('disabled');
@@ -524,6 +547,7 @@
         }
 
         async function loadFromDatabase() {
+            if (!db) return;
             const transaction = db.transaction(["media"], "readonly");
             const store = transaction.objectStore("media");
             const request = store.getAll();
@@ -540,6 +564,7 @@
                             obj.img = await new Promise(r => { 
                                 const i = new Image(); 
                                 i.onload = () => r(i); 
+                                i.onerror = () => r(null);
                                 i.src = url; 
                             });
                         }
@@ -569,15 +594,8 @@
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
         function togglePlay() {
-            if (videoEl.paused) { 
-                videoEl.muted = false; 
-                videoEl.play(); 
-                showIndicator("PLAYING"); 
-            } 
-            else { 
-                videoEl.pause(); 
-                showIndicator("PAUSED"); 
-            }
+            if (videoEl.paused) { videoEl.muted = false; videoEl.play(); showIndicator("PLAYING"); } 
+            else { videoEl.pause(); showIndicator("PAUSED"); }
         }
 
         function showIndicator(text) {
@@ -604,42 +622,62 @@
             const files = Array.from(e.target.files);
             if(files.length === 0) return;
             document.getElementById('dropZone').classList.add('hidden');
-            showProcessing(true, "SAVING TO BROWSER...");
+            showProcessing(true, "PROCESSING MEDIA...");
             
-            const transaction = db.transaction(["media"], "readwrite");
-            const store = transaction.objectStore("media");
-            
-            // Critical safety stall fix
-            const safetyTimeout = setTimeout(() => {
-                showProcessing(false);
-                updateQueue();
-                if(state.media.length > 0) selectMedia(state.media.length - 1);
-            }, 2000);
-
-            for (let file of files) {
-                const type = file.type.startsWith('video') ? 'video' : 'image';
-                const addReq = store.add({ type, file, name: file.name, rotation: 0 });
-                addReq.onsuccess = async (ev) => {
+            const filePromises = files.map(file => {
+                return new Promise(async (resolve) => {
+                    const type = file.type.startsWith('video') ? 'video' : 'image';
                     const url = URL.createObjectURL(file);
-                    const obj = { id: ev.target.result, type, src: url, name: file.name, rotation: 0 };
-                    if (type === 'image') {
-                        obj.img = await new Promise(r => { 
-                            const i = new Image(); 
-                            i.onload = () => r(i); 
-                            i.src = url; 
-                        });
+                    
+                    const finishFile = async (id) => {
+                        const obj = { id, type, src: url, name: file.name, rotation: 0 };
+                        if (type === 'image') {
+                            obj.img = await new Promise(r => { 
+                                const i = new Image(); 
+                                i.onload = () => r(i); 
+                                i.onerror = () => r(null);
+                                i.src = url; 
+                            });
+                        }
+                        state.media.push(obj);
+                        resolve();
+                    };
+
+                    if (isSessionMode || !db) {
+                        await finishFile(Date.now() + Math.random());
+                    } else {
+                        try {
+                            const transaction = db.transaction(["media"], "readwrite");
+                            const store = transaction.objectStore("media");
+                            const addReq = store.add({ type, file, name: file.name, rotation: 0 });
+                            addReq.onsuccess = (ev) => finishFile(ev.target.result);
+                            addReq.onerror = () => finishFile(Date.now() + Math.random());
+                        } catch(err) {
+                            await finishFile(Date.now() + Math.random());
+                        }
                     }
-                    state.media.push(obj);
-                };
-            }
-            transaction.oncomplete = () => {
-                clearTimeout(safetyTimeout);
-                updateQueue();
-                selectMedia(state.media.length - 1);
-                showProcessing(false);
-                compareBtn.style.display = 'block';
-            };
+                });
+            });
+
+            // Decoupled resolution: Ensure UI clears even if specific files hang
+            Promise.allSettled(filePromises).finally(() => {
+                setTimeout(() => {
+                    finishUpload();
+                }, 100);
+            });
+
+            // Global safety timeout
+            setTimeout(() => {
+                if (processingEl.style.display === 'flex') finishUpload();
+            }, 10000);
         };
+
+        function finishUpload() {
+            updateQueue();
+            selectMedia(state.media.length - 1);
+            showProcessing(false);
+            compareBtn.style.display = 'block';
+        }
 
         function selectMedia(index) {
             if (index < 0) return;
@@ -663,7 +701,7 @@
 
         function render() {
             const item = state.media[state.selectedIndex];
-            if (!item || item.type !== 'image') return;
+            if (!item || item.type !== 'image' || !item.img) return;
             const s = state.settings;
             const masterMix = state.isComparing ? 0 : (s.intensity / 100);
             
@@ -677,7 +715,6 @@
             ctx.rotate((item.rotation * Math.PI) / 180);
             ctx.translate(-item.img.width/2, -item.img.height/2);
 
-            // UPDATED SLIDER MATH: Exposure * 2.5, Saturation * 2.2, Blur / 10 (Increased sensitivity)
             let filters = `brightness(${1 + (s.exposure/40 * masterMix)}) saturate(${100 + ((s.saturation - 100) * 2.2 * masterMix)}%) blur(${(s.blur / 10) * masterMix}px)`;
             filters += ` contrast(${100 + (25 * masterMix)}%) sepia(${15 * masterMix}%)`;
             
@@ -751,8 +788,10 @@
         function deleteCurrent() {
             if(state.selectedIndex === -1) return;
             const idToDelete = state.media[state.selectedIndex].id;
-            const tx = db.transaction(["media"], "readwrite");
-            tx.objectStore("media").delete(idToDelete);
+            if (!isSessionMode && db) {
+                const tx = db.transaction(["media"], "readwrite");
+                tx.objectStore("media").delete(idToDelete);
+            }
             state.media.splice(state.selectedIndex, 1);
             state.selectedIndex = state.media.length - 1;
             updateQueue();
@@ -770,15 +809,17 @@
                 const div = document.createElement('div');
                 div.className = `file-item ${i === state.selectedIndex ? 'active' : ''}`;
                 div.innerHTML = `<div class="delete-btn" onclick="event.stopPropagation(); deleteIdx(${i})">×</div>${m.type==='image' ? `<img src="${m.src}">` : `<video src="${m.src}"></video>`}<span>${m.name.substring(0,10)}</span>`;
-                div.onclick = () => selectMedia(i);
+                div.onclick = () => { selectMedia(i); if(window.innerWidth <= 1024) toggleMediaRoll(); };
                 list.appendChild(div);
             });
         }
 
         function deleteIdx(i) {
             const idToDelete = state.media[i].id;
-            const tx = db.transaction(["media"], "readwrite");
-            tx.objectStore("media").delete(idToDelete);
+            if (!isSessionMode && db) {
+                const tx = db.transaction(["media"], "readwrite");
+                tx.objectStore("media").delete(idToDelete);
+            }
             state.media.splice(i, 1); 
             updateQueue(); 
             if(i === state.selectedIndex) deleteCurrent();
@@ -790,7 +831,7 @@
             const zip = new JSZip();
             setTimeout(async () => {
                 for(let m of state.media) {
-                    if(m.type === 'image') {
+                    if(m.type === 'image' && m.img) {
                         const tempCanvas = document.createElement('canvas'); const tempCtx = tempCanvas.getContext('2d');
                         const s = state.settings; const masterMix = s.intensity / 100;
                         const isRotated = (m.rotation / 90) % 2 !== 0;
@@ -804,9 +845,11 @@
                         const blob = await new Promise(r => tempCanvas.toBlob(r, 'image/jpeg', 0.9));
                         zip.file(m.name, blob);
                     } else {
-                        const response = await fetch(m.src);
-                        const videoBlob = await response.blob();
-                        zip.file(m.name, videoBlob);
+                        try {
+                            const response = await fetch(m.src);
+                            const videoBlob = await response.blob();
+                            zip.file(m.name, videoBlob);
+                        } catch(e) {}
                     }
                 }
                 const content = await zip.generateAsync({type:"blob"});
