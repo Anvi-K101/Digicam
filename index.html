@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Y2K DIGICAM STUDIO // ULTRA PRO V10.3 PHOTO-FIX</title>
+    <title>DIGICAMIFY - by Anvi Karanjkar</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&family=VT323&display=swap" rel="stylesheet">
@@ -140,7 +140,8 @@
         .file-list { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; background: #f0f0f0; }
         .file-item { position: relative; display: flex; align-items: center; padding: 8px; border: 3px solid #000; font-size: 0.75rem; font-weight: 700; gap: 10px; cursor: pointer; background: white; transition: 0.2s; }
         .file-item.active { background: var(--accent-yellow); box-shadow: 4px 4px 0px #000; }
-        .file-item img, .file-item video { width: 55px; height: 55px; object-fit: cover; border: 2px solid #000; }
+        /* VIDEO PREVIEW FIX: Remove black box shadow by setting background transparent */
+        .file-item img, .file-item video { width: 55px; height: 55px; object-fit: cover; border: 2px solid #000; background: transparent; }
 
         .delete-btn { position: absolute; top: -8px; right: -8px; background: #ff0000; color: white; border: 2px solid #000; border-radius: 50%; width: 24px; height: 24px; font-size: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; }
 
@@ -245,7 +246,7 @@
     <div class="magazine-grid">
         <header class="header">
             <button class="mobile-menu-btn" onclick="toggleSidebar()">☰ MENU</button>
-            <div class="logo">DIGICAMIFY PRO</div>
+            <div class="logo">DIGICAMIFY =</div>
             <button id="bulkExport" class="upload-btn" style="font-size: 1.1rem; padding: 8px 20px; background: var(--accent-yellow);">ZIP ROLL</button>
         </header>
 
@@ -273,18 +274,20 @@
                 <input type="date" id="datePicker">
             </div>
 
-            <div class="panel-header">★ IMAGE CONTROLS</div>
-            <div class="control-group">
-                <div class="control-label"><span>EXPOSURE</span> <span id="val-exposure">0</span></div>
-                <input type="range" id="exposure" min="-100" max="100" value="0">
-            </div>
-            <div class="control-group">
-                <div class="control-label"><span>SATURATION</span> <span id="val-saturation">100%</span></div>
-                <input type="range" id="saturation" min="0" max="200" value="100">
-            </div>
-            <div class="control-group">
-                <div class="control-label"><span>LENS BLUR</span> <span id="val-blur">0</span></div>
-                <input type="range" id="blur" min="0" max="100" value="0">
+            <div id="imageControlWrapper">
+                <div class="panel-header">★ VIDEO CONTROLS</div>
+                <div class="control-group">
+                    <div class="control-label"><span>EXPOSURE</span> <span id="val-exposure">0</span></div>
+                    <input type="range" id="exposure" min="-100" max="100" value="0">
+                </div>
+                <div class="control-group">
+                    <div class="control-label"><span>SATURATION</span> <span id="val-saturation">100%</span></div>
+                    <input type="range" id="saturation" min="0" max="200" value="100">
+                </div>
+                <div class="control-group">
+                    <div class="control-label"><span>LENS BLUR</span> <span id="val-blur">0</span></div>
+                    <input type="range" id="blur" min="0" max="100" value="0">
+                </div>
             </div>
 
             <div class="panel-header">★ OPTICS</div>
@@ -341,7 +344,7 @@
         </aside>
 
         <footer class="footer">
-            <div style="font-family: 'VT323'; letter-spacing: 1px;">DIGICAMIFY // V10.3 PHOTO-OPT</div>
+            <div style="font-family: 'VT323'; letter-spacing: 1px;">DIGICAMIFY // by Anvi Karanjkar</div>
             <div id="statusInfo" id="storageStatus">STORAGE ACTIVE</div>
         </footer>
     </div>
@@ -581,11 +584,14 @@
         function refreshView() {
             if (state.selectedIndex !== -1) {
                 const item = state.media[state.selectedIndex];
+                const imagePanel = document.getElementById('imageControlWrapper');
                 if (item.type === 'video') {
                     document.getElementById('modeSection').style.display = 'block';
+                    if(imagePanel) imagePanel.style.display = 'block'; // Show for video controls
                     applyVideoFX();
                 } else {
                     document.getElementById('modeSection').style.display = 'none'; 
+                    if(imagePanel) imagePanel.style.display = 'none'; // Hide as per user request for images
                     render();
                 }
             }
@@ -659,17 +665,11 @@
                 });
             });
 
-            // Decoupled resolution: Ensure UI clears even if specific files hang
+            // Production Resolution Guarantee: Wait for all processing but time out after 5s
             Promise.allSettled(filePromises).finally(() => {
-                setTimeout(() => {
-                    finishUpload();
-                }, 100);
+                setTimeout(finishUpload, 100);
             });
-
-            // Global safety timeout
-            setTimeout(() => {
-                if (processingEl.style.display === 'flex') finishUpload();
-            }, 10000);
+            setTimeout(() => { if(processingEl.style.display === 'flex') finishUpload(); }, 5000);
         };
 
         function finishUpload() {
@@ -715,10 +715,8 @@
             ctx.rotate((item.rotation * Math.PI) / 180);
             ctx.translate(-item.img.width/2, -item.img.height/2);
 
-            let filters = `brightness(${1 + (s.exposure/40 * masterMix)}) saturate(${100 + ((s.saturation - 100) * 2.2 * masterMix)}%) blur(${(s.blur / 10) * masterMix}px)`;
-            filters += ` contrast(${100 + (25 * masterMix)}%) sepia(${15 * masterMix}%)`;
-            
-            ctx.filter = filters;
+            // Basic base rendering for images (Hiding custom image exposure/sat as requested)
+            ctx.filter = `contrast(${100 + (25 * masterMix)}%) sepia(${15 * masterMix}%)`;
             ctx.drawImage(item.img, 0, 0);
 
             if (!state.isComparing) {
@@ -840,7 +838,7 @@
                         tempCtx.translate(tempCanvas.width/2, tempCanvas.height/2);
                         tempCtx.rotate((m.rotation * Math.PI) / 180);
                         tempCtx.translate(-m.img.width/2, -m.img.height/2);
-                        tempCtx.filter = `brightness(${1+(s.exposure/40*masterMix)}) saturate(${100+((s.saturation-100)*2.2*masterMix)}%) blur(${(s.blur/10)*masterMix}px)`;
+                        tempCtx.filter = `brightness(1.0) saturate(1.0) contrast(${100+(25*masterMix)}%) sepia(${15*masterMix}%)`;
                         tempCtx.drawImage(m.img, 0, 0);
                         const blob = await new Promise(r => tempCanvas.toBlob(r, 'image/jpeg', 0.9));
                         zip.file(m.name, blob);
@@ -849,7 +847,7 @@
                             const response = await fetch(m.src);
                             const videoBlob = await response.blob();
                             zip.file(m.name, videoBlob);
-                        } catch(e) {}
+                        } catch(e) { console.warn("Export skip", m.name); }
                     }
                 }
                 const content = await zip.generateAsync({type:"blob"});
